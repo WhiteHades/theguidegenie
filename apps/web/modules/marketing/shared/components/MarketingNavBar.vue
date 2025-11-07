@@ -3,17 +3,19 @@
   import { VisuallyHidden } from "radix-vue";
 
   const route = useRoute();
-  const { t } = useTranslations();
   const { y: verticalScrollPosition } = useWindowScroll();
-  const { user, loaded: userLoaded } = useUser();
+  const { user } = useAuth();
 
   const isTop = computed(() => verticalScrollPosition.value < 10);
 
-  const { public: runtimeConfig } = useRuntimeConfig();
+  const dashboardLink = computed(() => {
+    if (!user.value) return '/guides/login'
+    return user.value.user_type === 'guide' ? '/guides/dashboard' : '/app/dashboard'
+  })
 
-  const hasUser = computed(() => {
-    return userLoaded.value && user.value;
-  });
+  const loginLabel = computed(() => {
+    return user.value ? 'dashboard' : 'guide login'
+  })
 
   const mobileMenuOpen = ref(false);
 
@@ -34,20 +36,12 @@
   };
   const menuItems = computed<MenuItem[]>(() => [
     {
-      label: t("common.menu.pricing"),
-      to: "/pricing",
+      label: 'tours',
+      to: '/tours',
     },
     {
-      label: t("common.menu.blog"),
-      to: "/blog",
-    },
-    {
-      label: t("common.menu.changelog"),
-      to: "/changelog",
-    },
-    {
-      label: t("common.menu.docs"),
-      to: "/docs",
+      label: 'become a guide',
+      to: '/guides/signup',
     },
   ]);
 </script>
@@ -113,32 +107,20 @@
                   {{ menuItem.label }}
                 </NuxtLinkLocale>
 
-                <NuxtLinkLocale
-                  :to="
-                    hasUser ? runtimeConfig.auth.redirectPath : '/auth/login'
-                  "
-                  :prefetch="!hasUser"
+                <NuxtLink
+                  :to="dashboardLink"
                   class="block px-3 py-2 text-sm"
                 >
-                  {{
-                    hasUser
-                      ? t("common.menu.dashboard")
-                      : t("common.menu.login")
-                  }}
-                </NuxtLinkLocale>
+                  {{ loginLabel }}
+                </NuxtLink>
               </div>
             </SheetContent>
           </Sheet>
 
           <Button class="hidden lg:flex" asChild variant="secondary">
-            <NuxtLinkLocale
-              :to="hasUser ? runtimeConfig.auth.redirectPath : '/auth/login'"
-              :prefetch="!hasUser"
-            >
-              {{
-                hasUser ? t("common.menu.dashboard") : t("common.menu.login")
-              }}
-            </NuxtLinkLocale>
+            <NuxtLink :to="dashboardLink">
+              {{ loginLabel }}
+            </NuxtLink>
           </Button>
         </div>
       </div>
