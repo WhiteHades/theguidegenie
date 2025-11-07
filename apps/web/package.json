@@ -31,7 +31,7 @@
     "api": "workspace:*",
     "auth": "workspace:*",
     "class-variance-authority": "^0.7.1",
-    "cropperjs": "^1.6.2",
+    "cropperjs": "^2.1.0",
     "date-fns": "^4.1.0",
     "gsap": "^3.13.0",
     "lucide-vue-next": "^0.473.0",
