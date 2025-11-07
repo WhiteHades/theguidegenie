@@ -1,8 +1,6 @@
-# docs
-*.md
-
 # templates
 templates/
+*.md
 
 # dependencies
 node_modules/
@@ -36,3 +34,6 @@ pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# database
+prisma/dev.db
+prisma/dev.db-journal
