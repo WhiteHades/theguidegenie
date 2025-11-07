@@ -28,6 +28,8 @@ const { data: featuredTours } = await useAsyncData('featured-tours', async () =>
     .limit(3)
   
   return data || []
+}, {
+  server: false
 })
 
 const features = [
