@@ -1,5 +1,5 @@
 [build]
-  command = "cd apps/web && pnpm install && pnpm build"
+  command = "pnpm install && pnpm turbo build --filter=web"
   publish = "apps/web/.output/public"
 
 [build.environment]
