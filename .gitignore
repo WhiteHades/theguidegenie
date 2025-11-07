@@ -1,3 +1,10 @@
+# turbo / nuxt cache
+.turbo/*
+.turbo/cache/
+.turbo/cookies/
+apps/web/.output/
+apps/web/.netlify/
+
 # templates
 templates/
 *.md
