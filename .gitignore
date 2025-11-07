@@ -1,0 +1,38 @@
+# docs
+*.md
+
+# templates
+templates/
+
+# dependencies
+node_modules/
+.pnpm-store/
+
+# nuxt
+.nuxt/
+.output/
+dist/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# os
+.DS_Store
+Thumbs.db
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
