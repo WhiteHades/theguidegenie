@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "@lemonsqueezy/lemonsqueezy.js": "^4.0.0",
+    "@supabase/supabase-js": "^2.80.0",
     "auth": "workspace:*",
     "chargebee-typescript": "^2.44.0",
     "eslint-config-custom": "workspace:*",

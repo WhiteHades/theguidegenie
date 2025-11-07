@@ -12,7 +12,6 @@
     "@oslojs/encoding": "^1.1.0",
     "arctic": "^3.2.1",
     "cookie": "^1.0.2",
-    "database": "workspace:*",
     "eslint-config-custom": "workspace:*",
     "h3": "^1.14.0",
     "mail": "workspace:*",
