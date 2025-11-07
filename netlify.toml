@@ -1,10 +1,11 @@
 [build]
-  command = "turbo run build --filter web"
+  command = "pnpm install && turbo run build --filter web"
   publish = "apps/web/.output/public"
 
 [build.environment]
   NODE_VERSION = "18"
   PNPM_VERSION = "9.1.0"
+  NPM_FLAGS = "--force"
 
 [functions]
   directory = "apps/web/.output/server"
