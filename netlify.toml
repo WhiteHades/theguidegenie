@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm install && turbo run build --filter web"
+  command = "cd apps/web && pnpm install && pnpm build"
   publish = "apps/web/.output/public"
 
 [build.environment]
@@ -7,6 +7,11 @@
   PNPM_VERSION = "9.1.0"
   NPM_FLAGS = "--force"
   SECRETS_SCAN_OMIT_KEYS = "NUXT_PUBLIC_SITE_URL,NUXT_PUBLIC_SUPABASE_ANON_KEY,NUXT_PUBLIC_SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY"
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/server/:splat"
+  status = 200
 
 [functions]
   directory = "apps/web/.output/server"
