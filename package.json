@@ -17,10 +17,7 @@
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "clean": "turbo clean",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "db:push": "turbo db:push",
-    "db:generate": "turbo db:generate",
-    "db:studio": "pnpm --filter database run db:studio"
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "dependencies": {
     "eslint": "8.57.0",
