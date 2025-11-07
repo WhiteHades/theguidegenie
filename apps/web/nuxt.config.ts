@@ -5,6 +5,7 @@ import { config } from "../../config";
 const baseUrl = getBaseUrl();
 
 export default defineNuxtConfig({
+  compatibilityDate: '2025-11-08',
   devtools: {
     enabled: true,
   },
@@ -87,8 +88,8 @@ export default defineNuxtConfig({
   nitro: {
     preset: 'netlify',
     future: {
-      nativeSWR: true
-    }
+      nativeSWR: true,
+    },
   },
 
   modules: [

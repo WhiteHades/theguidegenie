@@ -9,11 +9,5 @@
   NUXT_TELEMETRY_DISABLED = "1"
   SECRETS_SCAN_OMIT_KEYS = "NUXT_PUBLIC_SITE_URL,NUXT_PUBLIC_SUPABASE_ANON_KEY,NUXT_PUBLIC_SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY"
 
-[[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/server/:splat"
-  status = 200
-
-[functions]
-  directory = "apps/web/.output/server"
+## No explicit functions directory. Nitro with Netlify preset will generate and Netlify will detect it automatically.
 
