@@ -19,8 +19,11 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
     public: {
       siteUrl: baseUrl,
+      supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
+      supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,
       s3AvatarsBucketName: process.env.NUXT_PUBLIC_S3_AVATARS_BUCKET_NAME,
       analytics: {
         googleAnalyticsId: process.env.NUXT_PUBLIC_GOOGLE_ANALYTICS_ID,
@@ -79,6 +82,10 @@ export default defineNuxtConfig({
 
   build: {
     transpile: ["trpc-nuxt"],
+  },
+
+  nitro: {
+    preset: 'netlify'
   },
 
   modules: [
