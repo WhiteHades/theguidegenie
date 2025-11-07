@@ -1,6 +1,8 @@
 # templates
 templates/
 *.md
+.cursorrules
+.windsurfrules
 
 # dependencies
 node_modules/
