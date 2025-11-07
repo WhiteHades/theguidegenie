@@ -1,9 +1,11 @@
 <script setup lang="ts">
+// @ts-nocheck - Nuxt auto-imports (definePageMeta, useAsyncData, useSupabase)
+import { onMounted } from 'vue'
 import { MapPinIcon, UsersIcon, CalendarIcon, ShieldCheckIcon, SparklesIcon } from 'lucide-vue-next'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-if (process.client) {
+if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger)
 }
 
@@ -62,7 +64,7 @@ const tourImages = [
 ]
 
 onMounted(() => {
-  if (process.client) {
+  if (typeof window !== 'undefined') {
     // hero fade in
     gsap.from('.hero-content', {
       opacity: 0,
