@@ -2,15 +2,19 @@
   * {
     @apply border-border;
   }
+
   html {
     color-scheme: light dark;
   }
+
   html.dark {
     color-scheme: dark;
   }
+
   html.light {
     color-scheme: light;
   }
+
   body {
     @apply bg-background text-foreground font-sans;
   }
@@ -20,6 +24,7 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
