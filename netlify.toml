@@ -3,7 +3,7 @@
   publish = "apps/web/dist"
 
 [functions]
-  directory = "apps/web/.netlify/functions-internal"
+  directory = ".netlify/functions-internal"
   node_bundler = "none"
 
 [[redirects]]
