@@ -14,10 +14,6 @@
   const titleTemplateDefault = "supastarter.nuxt - Application";
   const titleDivider = "|";
 
-  const i18nHead = useLocaleHead({
-    addSeoAttributes: true,
-  });
-
   const { init } = useAnalytics();
 
   // You might want to display a consent banner before initializing analytics
@@ -30,12 +26,10 @@
         ? `${title} ${titleDivider} ${titleTemplateDefault}`
         : titleTemplateDefault,
 
-    // i18n
+    // Default to English since i18n is temporarily disabled
     htmlAttrs: {
-      lang: i18nHead.value.htmlAttrs!.lang,
+      lang: "en",
     },
-    link: [...(i18nHead.value.link || [])],
-    meta: [...(i18nHead.value.meta || [])],
   });
 </script>
 
