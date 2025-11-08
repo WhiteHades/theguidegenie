@@ -14,7 +14,7 @@
   <Wrapper>
     <EText>
       Hey {{ props.name }}, <br />
-      you requested a login email from supastarter.
+      you requested a login email from The Guide Genie.
       <br />
       <br />
       You can either enter the one-time password below manually in the

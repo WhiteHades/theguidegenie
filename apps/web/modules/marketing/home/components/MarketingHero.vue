@@ -24,12 +24,12 @@
     <h1
       class="mx-auto max-w-3xl text-balance text-5xl font-bold text-foreground lg:text-7xl"
     >
-      Your revolutionary Nuxt 3 SaaS
+      Discover Amazing Tours & Travel Experiences
     </h1>
 
     <p class="mx-auto mt-4 max-w-xl text-balance text-lg text-foreground/60">
-      This is a demo application built with supastarter. It will save you a lot
-      of time and effort building your next SaaS.
+      The Guide Genie helps you find and book the perfect tours and travel 
+      experiences around the world. Your personal guide to amazing adventures.
     </p>
 
     <div

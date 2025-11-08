@@ -1,7 +1,7 @@
 <template>
   <footer class="container py-4 text-center text-sm text-muted-foreground">
     <span>
-      <a href="https://supastarter.dev">Built with supastarter</a>
+      © {{ new Date().getFullYear() }} The Guide Genie. All rights reserved.
     </span>
     <span class="opacity-50"> | </span>
     <NuxtLink to="/legal/privacy-policy">Privacy policy</NuxtLink>

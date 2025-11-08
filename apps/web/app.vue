@@ -11,7 +11,7 @@
 
   const useIdFunction = () => useId();
 
-  const titleTemplateDefault = "supastarter.nuxt - Application";
+  const titleTemplateDefault = "The Guide Genie";
   const titleDivider = "|";
 
   const { init } = useAnalytics();

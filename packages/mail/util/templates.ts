@@ -1,7 +1,7 @@
 export const mailTemplates = {
   magicLink: {
     name: "MagicLink.vue",
-    subject: "Login to supastarter",
+    subject: "Login to The Guide Genie",
   },
   forgotPassword: {
     name: "ForgotPassword.vue",
@@ -9,7 +9,7 @@ export const mailTemplates = {
   },
   newUser: {
     name: "NewUser.vue",
-    subject: "Welcome to supastarter!",
+    subject: "Welcome to The Guide Genie!",
   },
   newsletterSignup: {
     name: "NewsletterSignup.vue",
