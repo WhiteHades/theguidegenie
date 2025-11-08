@@ -16,7 +16,7 @@
     "storage": "workspace:*",
     "stripe": "^17.5.0",
     "tsconfig": "workspace:*",
-    "ufo": "^1.5.4",
+    "ufo": "^1.6.1",
     "utils": "workspace:*"
   },
   "devDependencies": {
