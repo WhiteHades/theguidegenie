@@ -1,15 +1,16 @@
 [build]
-  command = "rm -rf node_modules/.pnpm && pnpm install --shamefully-hoist --no-frozen-lockfile && pnpm turbo build --filter=web"
+  command = "pnpm install --no-frozen-lockfile && pnpm turbo build --filter=web"
+  publish = "apps/web/.output/public"
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "22"
   PNPM_VERSION = "9.1.0"
-  NPM_FLAGS = "--force"
   NUXT_TELEMETRY_DISABLED = "1"
   SECRETS_SCAN_OMIT_KEYS = "NUXT_PUBLIC_SITE_URL,NUXT_PUBLIC_SUPABASE_ANON_KEY,NUXT_PUBLIC_SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY"
   CYPRESS_INSTALL_BINARY = "0"
   SQLITE3_COMPILE = "false"
   npm_config_build_from_source = "false"
+  NODE_OPTIONS = "--max-old-space-size=4096"
 
 [[redirects]]
   from = "/*"
