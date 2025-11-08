@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm install --no-frozen-lockfile && pnpm turbo build --filter=web"
+  command = "cd apps/web && pnpm build"
   publish = "apps/web/dist"
 
 [functions]
