@@ -1,6 +1,6 @@
 [build]
   command = "pnpm install --no-frozen-lockfile && pnpm turbo build --filter=web"
-  publish = "apps/web/.netlify"
+  publish = "apps/web/dist"
 
 [functions]
   directory = "apps/web/.netlify/functions-internal"
