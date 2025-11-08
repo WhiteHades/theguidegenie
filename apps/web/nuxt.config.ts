@@ -97,7 +97,7 @@ export default defineNuxtConfig({
     "@nuxtjs/color-mode",
     "@nuxt/content",
     "@nuxt/image",
-    "@vue-email/nuxt",
+    // "@vue-email/nuxt", // not compatible with Nuxt 4
     "shadcn-nuxt",
     "@nuxtjs/seo",
     "@vee-validate/nuxt",
@@ -143,10 +143,10 @@ export default defineNuxtConfig({
     // sitemap: 'sitemap.xml',
   },
 
-  // @vue-email/nuxt
-  vueEmail: {
-    baseUrl,
-  },
+  // @vue-email/nuxt - Disabled, not compatible with Nuxt 4
+  // vueEmail: {
+  //   baseUrl,
+  // },
 
   // @vee-validate/nuxt
   veeValidate: {
