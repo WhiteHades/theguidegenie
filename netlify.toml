@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm install && pnpm turbo build --filter=web"
+  command = "rm -rf node_modules/.pnpm && pnpm install --force && pnpm turbo build --filter=web"
 
 [build.environment]
   NODE_VERSION = "18"
