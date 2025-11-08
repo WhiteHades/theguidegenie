@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm install --no-frozen-lockfile && cd apps/web && pnpm build"
+  command = "pnpm install --no-frozen-lockfile && pnpm turbo build --filter=web"
   base = "apps/web"
 
 [build.environment]
