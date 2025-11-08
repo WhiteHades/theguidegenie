@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm install --prod=false --no-frozen-lockfile --ignore-scripts && pnpm --filter=web run postinstall && pnpm turbo build --filter=web"
+  command = "pnpm install --no-frozen-lockfile && pnpm turbo build --filter=web"
 
 [build.environment]
   NODE_VERSION = "18"
@@ -7,6 +7,8 @@
   NPM_FLAGS = "--force"
   NUXT_TELEMETRY_DISABLED = "1"
   SECRETS_SCAN_OMIT_KEYS = "NUXT_PUBLIC_SITE_URL,NUXT_PUBLIC_SUPABASE_ANON_KEY,NUXT_PUBLIC_SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY"
+  CYPRESS_INSTALL_BINARY = "0"
+  SQLITE3_COMPILE = "false"
 
 [[redirects]]
   from = "/*"
