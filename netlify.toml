@@ -1,6 +1,9 @@
 [build]
-  base = "apps/web"
-  command = "cd ../.. && pnpm install --no-frozen-lockfile && pnpm turbo build --filter=web"
+  command = "pnpm install --no-frozen-lockfile && pnpm turbo build --filter=web"
+  publish = "apps/web/.netlify"
+
+[functions]
+  directory = "apps/web/.netlify/functions-internal"
 
 [build.environment]
   NODE_VERSION = "22"
