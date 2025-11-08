@@ -47,4 +47,4 @@ yarn-error.log*
 
 # database
 prisma/dev.db
-prisma/dev.db-journal
+prisma/dev.db-journalapps/web/.data/

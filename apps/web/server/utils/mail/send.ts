@@ -14,14 +14,14 @@ export const sendEmail = async <TemplateId extends keyof typeof mailTemplates>({
 }) => {
   console.warn('Email sending is temporarily disabled - vue-email not compatible with Nuxt 4');
   
-  // TODO: Re-enable when vue-email supports Nuxt 4
+  // TODO: enable when vue-email supports Nuxt 4
   // const templateData = mailTemplates[templateId];
   // const template = await useCompiler(templateData.name, {
   //   props: context,
   // });
 
   try {
-    // Temporary: Send plain text email without template
+    // temporary: send plain text email without template
     const templateData = mailTemplates[templateId];
     await send({
       to,
