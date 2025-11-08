@@ -1,6 +1,5 @@
 [build]
   command = "pnpm install && pnpm turbo build --filter=web"
-  publish = "apps/web/.output/public"
 
 [build.environment]
   NODE_VERSION = "18"
