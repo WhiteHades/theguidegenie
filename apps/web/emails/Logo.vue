@@ -15,7 +15,7 @@
 
 <template>
   <span :style="{ color: colors.primary, fontWeight: 600, lineHeight: 1 }">
-    <!-- TODO: Replace with your own logo -->
+    <!-- TODO: logo -->
     <span
       :style="{
         display: 'inline-block',

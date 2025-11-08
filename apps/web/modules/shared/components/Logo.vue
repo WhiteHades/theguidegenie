@@ -11,7 +11,7 @@
 
 <template>
   <span class="flex items-center font-semibold leading-none text-primary">
-    <!-- TODO: Replace with your own logo -->
+    <!-- TODO: own -->
     <div class="size-10 rounded-lg bg-primary/10 flex items-center justify-center">
       <span class="text-2xl">🧞</span>
     </div>

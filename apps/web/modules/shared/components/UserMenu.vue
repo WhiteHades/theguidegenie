@@ -62,8 +62,6 @@
 
       <DropdownMenuSeparator />
 
-
-
       <DropdownMenuItem asChild>
         <NuxtLinkLocale to="/app/settings/account/general">
           <SettingsIcon class="mr-2 size-4" />
