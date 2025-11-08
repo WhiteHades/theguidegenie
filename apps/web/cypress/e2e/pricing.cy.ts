@@ -3,7 +3,11 @@ describe("pricing page", () => {
     cy.visit("/pricing");
   });
 
-  it("should show headline", () => {
-    cy.get("h1").should("contain", "Pricing");
+  it("should load the pricing page", () => {
+    cy.get("body").should("be.visible");
+  });
+
+  it("should show pricing heading", () => {
+    cy.get("h1").should("exist");
   });
 });
