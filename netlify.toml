@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm install --no-frozen-lockfile && pnpm turbo build --filter=web"
+  command = "pnpm install --prod=false --no-frozen-lockfile --ignore-scripts && pnpm --filter=web run postinstall && pnpm turbo build --filter=web"
 
 [build.environment]
   NODE_VERSION = "18"
