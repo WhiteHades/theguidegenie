@@ -1,6 +1,5 @@
 import path from "node:path";
 import { getBaseUrl } from "utils";
-import { config } from "../../config";
 
 const baseUrl = getBaseUrl();
 
@@ -93,7 +92,6 @@ export default defineNuxtConfig({
   },
 
   modules: [
-    "@nuxtjs/i18n", // configured here and in i18n.config.ts
     "@nuxtjs/tailwindcss", // configured in tailwind.config.ts
     "@nuxtjs/google-fonts",
     "@nuxtjs/color-mode",
@@ -105,25 +103,6 @@ export default defineNuxtConfig({
     "@vee-validate/nuxt",
     "@vueuse/nuxt",
   ],
-
-  // @nuxtjs/i18n
-  i18n: {
-    locales: Object.entries(config.i18n.locales).map(([code, locale]) => ({
-      code,
-      file: `${code}.json`,
-      name: locale.label,
-    })),
-    defaultLocale: config.i18n.defaultLocale,
-    strategy: "no_prefix",
-    detectBrowserLanguage: {
-      useCookie: true,
-      cookieKey: config.i18n.cookieName,
-      redirectOn: "root",
-    },
-    lazy: true,
-
-    langDir: path.join("..", "..", "packages", "i18n", "translations"),
-  },
 
   // @nuxtjs/google-fonts
   googleFonts: {
