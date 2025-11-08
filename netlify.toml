@@ -1,5 +1,6 @@
 [build]
   command = "pnpm install --no-frozen-lockfile && cd apps/web && pnpm build"
+  base = "apps/web"
 
 [build.environment]
   NODE_VERSION = "22"
@@ -10,8 +11,3 @@
   SQLITE3_COMPILE = "false"
   npm_config_build_from_source = "false"
   NODE_OPTIONS = "--max-old-space-size=4096"
-
-[[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/server/:splat"
-  status = 200
