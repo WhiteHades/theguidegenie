@@ -1,5 +1,7 @@
 [build]
-  command = "pnpm install --no-frozen-lockfile && pnpm turbo build --filter=web"
+  base = "apps/web"
+  command = "cd ../.. && pnpm install --no-frozen-lockfile && pnpm turbo build --filter=web"
+  publish = ".netlify/edge-functions-dist"
 
 [build.environment]
   NODE_VERSION = "22"
