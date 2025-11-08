@@ -1,6 +1,6 @@
 [build]
   command = "pnpm install --no-frozen-lockfile && pnpm turbo build --filter=web"
-  publish = "apps/web/.output/public"
+  publish = "apps/web/.output"
 
 [build.environment]
   NODE_VERSION = "22"
