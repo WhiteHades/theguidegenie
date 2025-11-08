@@ -84,6 +84,18 @@ export default defineNuxtConfig({
     transpile: ["trpc-nuxt"],
   },
 
+  vite: {
+    optimizeDeps: {
+      include: ["cropperjs"],
+    },
+    css: {
+      preprocessorOptions: {},
+    },
+    ssr: {
+      noExternal: ["cropperjs"],
+    },
+  },
+
   nitro: {
     preset: 'netlify',
     future: {

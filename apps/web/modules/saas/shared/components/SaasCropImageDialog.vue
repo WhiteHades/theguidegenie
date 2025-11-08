@@ -1,6 +1,5 @@
 <script setup lang="ts">
   import Cropper from "cropperjs";
-  import "cropperjs/dist/cropper.css";
 
   const props = defineProps<{
     open: boolean;
