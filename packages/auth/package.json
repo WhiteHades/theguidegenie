@@ -13,7 +13,7 @@
     "arctic": "^3.2.1",
     "cookie": "^1.0.2",
     "eslint-config-custom": "workspace:*",
-    "h3": "^1.14.0",
+    "h3": "^1.15.4",
     "mail": "workspace:*",
     "oslo": "^1.2.1",
     "tsconfig": "workspace:*",
