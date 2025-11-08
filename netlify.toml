@@ -1,8 +1,8 @@
 [build]
-  command = "pnpm install --no-frozen-lockfile && pnpm turbo build --filter=web"
+  command = "rm -rf node_modules/.pnpm && pnpm install --shamefully-hoist --no-frozen-lockfile && pnpm turbo build --filter=web"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
   PNPM_VERSION = "9.1.0"
   NPM_FLAGS = "--force"
   NUXT_TELEMETRY_DISABLED = "1"
