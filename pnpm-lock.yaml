@@ -27,6 +27,9 @@ importers:
       better-sqlite3:
         specifier: ^12.4.1
         version: 12.4.1
+      dotenv-cli:
+        specifier: ^11.0.0
+        version: 11.0.0
 
   apps/web:
     dependencies:
@@ -13594,7 +13597,7 @@ snapshots:
 
   citty@0.1.6:
     dependencies:
-      consola: 3.4.0
+      consola: 3.4.2
 
   class-variance-authority@0.7.1:
     dependencies:
