@@ -1,5 +1,10 @@
 [build]
   command = "pnpm install --no-frozen-lockfile && pnpm turbo build --filter=web"
+  publish = "apps/web/node_modules/.cache/nuxt/.nuxt/dist/client"
+
+[functions]
+  directory = "apps/web/.netlify/functions-internal"
+  node_bundler = "none"
 
 [build.environment]
   NODE_VERSION = "22"
