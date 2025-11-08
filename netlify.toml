@@ -1,10 +1,7 @@
 [build]
   command = "cd apps/web && pnpm build"
-  publish = "apps/web/.output/public"
-
-[functions]
-  directory = "apps/web/.output/server"
-  node_bundler = "esbuild"
+  base = "apps/web"
+  publish = ".output/public"
 
 [[redirects]]
   from = "/*"
