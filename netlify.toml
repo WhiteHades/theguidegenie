@@ -1,12 +1,6 @@
 [build]
   command = "pnpm --filter web build"
   publish = "apps/web/dist"
-  functions = "apps/web/.netlify/functions-internal"
-
-[[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/server"
-  status = 200
 
 [build.environment]
   NODE_VERSION = "22"
