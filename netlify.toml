@@ -1,6 +1,6 @@
 [build]
   command = "pnpm --filter web build"
-  publish = "apps/web/.output/public"
+  publish = "apps/web/dist"
   functions = "apps/web/.netlify/functions-internal"
 
 [[redirects]]
