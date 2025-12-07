@@ -27,6 +27,7 @@
     "@vue-email/nuxt": "^0.8.19",
     "api": "workspace:*",
     "auth": "workspace:*",
+    "database": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "cropperjs": "^2.1.0",
     "date-fns": "^4.1.0",
