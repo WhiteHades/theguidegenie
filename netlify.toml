@@ -1,11 +1,11 @@
 [build]
-  command = "pnpm build"
-  base = "apps/web"
-  publish = "dist"
+  command = "pnpm --filter web build"
+  publish = "apps/web/.output/public"
+  functions = "apps/web/.netlify/functions-internal"
 
 [[redirects]]
   from = "/*"
-  to = "/.netlify/builders/server"
+  to = "/.netlify/functions/server"
   status = 200
 
 [build.environment]
