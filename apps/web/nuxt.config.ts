@@ -137,6 +137,19 @@ export default defineNuxtConfig({
       nativeSWR: true,
     },
     routeRules: {
+      // Static assets 
+      '/_nuxt/**': {
+        headers: {
+          'Cache-Control': 'public, max-age=31536000, immutable',
+        },
+      },
+      // HTML pages - always revalidate to get fresh content
+      '/': {
+        headers: {
+          'Cache-Control': 'public, max-age=0, must-revalidate',
+        },
+      },
+      // All routes - security headers
       '/**': {
         headers: {
           'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
