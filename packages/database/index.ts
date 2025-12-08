@@ -43,6 +43,8 @@ export const GuideSchema = z.object({
     created_at: z.string(),
 });
 
+export const TourCategorySchema = z.enum(['free', 'paid', 'boat', 'museum']);
+
 export const TourSchema = z.object({
     id: z.string().uuid(),
     guide_id: z.string().uuid(),
@@ -50,6 +52,10 @@ export const TourSchema = z.object({
     description: z.string().nullable(),
     base_price_cents: z.number().nullable(),
     is_public: z.boolean(),
+    category: TourCategorySchema.default('paid'),
+    provider_name: z.string().nullable(),
+    tips_enabled: z.boolean().default(false),
+    meeting_point: z.string().nullable(),
     created_at: z.string(),
 });
 
