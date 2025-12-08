@@ -8,7 +8,6 @@
     "baseColor": "slate",
     "cssVariables": true
   },
-  "framework": "nuxt",
   "aliases": {
     "components": "@/modules/ui/components",
     "utils": "@/modules/ui/lib/utils",
