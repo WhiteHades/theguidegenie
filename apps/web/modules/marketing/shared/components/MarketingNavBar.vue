@@ -7,7 +7,16 @@
   const verticalScrollPosition = import.meta.server
     ? ref(0)
     : useWindowScroll().y;
-  const { user } = useAuth();
+
+  // guard useAuth for ssr to avoid crashing the first render
+  const user = (() => {
+    try {
+      return useAuth().user;
+    } catch (err) {
+      console.error("[navbar] auth unavailable during ssr", err);
+      return ref(null);
+    }
+  })();
 
   const isTop = computed(() => verticalScrollPosition.value < 10);
 
