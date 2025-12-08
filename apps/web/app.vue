@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { ConfigProvider } from "radix-vue";
   import { configure } from "vee-validate";
+  import { Analytics } from "@vercel/analytics/nuxt";
 
   configure({
     validateOnBlur: true,
@@ -41,6 +42,7 @@
       </NuxtLayout>
       <Toaster />
       <NuxtLoadingIndicator color="var(--colors-primary)" />
+      <Analytics />
     </GradientBackgroundWrapper>
   </ConfigProvider>
 </template>
