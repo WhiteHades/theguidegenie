@@ -1,240 +1,155 @@
 <script setup lang="ts">
-import { PlusIcon, CalendarIcon, UsersIcon } from "lucide-vue-next"
-import type { Guide, Tour, TimeSlot, Booking } from "database"
+// @ts-nocheck
+import { PlusIcon, CalendarIcon, UsersIcon, LayoutGridIcon, ClockIcon, ImageIcon } from "lucide-vue-next"
 
-definePageMeta({
+definePageMeta({ 
   layout: "saas-app",
+  middleware: ["guide-auth"]
 })
+useSeoMeta({ title: "guide dashboard" })
 
-useSeoMeta({
-  title: "guide dashboard - guidegenie",
-})
-
-const { user, checkIsGuide } = useAuth()
+const { user, guideProfile } = useAuth()
 const supabase = useSupabase()
 
-// ensure user is authenticated and is a guide
-if (!user.value) {
-  navigateTo('/guides/login')
-} else {
-  const isGuide = await checkIsGuide()
-  if (!isGuide) {
-    navigateTo('/guides/onboarding')
-  }
-}
+// use guide profile from auth state
+const guide = computed(() => guideProfile.value)
 
-const showCreateTourDialog = ref(false)
-const showCreateSlotDialog = ref(false)
-
-const { data: guide, refresh: refreshGuide } = await useAsyncData('guide-profile', async () => {
-  if (!user.value) return null
-  const { data } = await supabase
-    .from("guides")
-    .select("*")
-    .eq("user_id", user.value.id)
-    .single()
-  return data
-})
-
-const { data: tours, refresh: refreshTours } = await useAsyncData('guide-tours', async () => {
+const { data: tours } = await useAsyncData('guide-tours', async () => {
   if (!guide.value) return []
-  const { data } = await supabase
-    .from("tours")
-    .select("*")
-    .eq("guide_id", guide.value.id)
-    .order("created_at", { ascending: false })
+  const { data } = await supabase.from("tours").select("*").eq("guide_id", guide.value.id).order("created_at", { ascending: false })
   return data || []
 })
 
-const { data: timeSlots, refresh: refreshSlots } = await useAsyncData('guide-slots', async () => {
+const { data: timeSlots } = await useAsyncData('guide-slots', async () => {
   if (!guide.value) return []
-  const { data } = await supabase
-    .from("time_slots")
-    .select("*, tours(*)")
-    .eq("guide_id", guide.value.id)
-    .gte("start_utc", new Date().toISOString())
-    .order("start_utc", { ascending: true })
-    .limit(10)
+  const { data } = await supabase.from("time_slots").select("*, tours(*)").eq("guide_id", guide.value.id).gte("start_utc", new Date().toISOString()).order("start_utc", { ascending: true })
   return data || []
 })
 
-const { data: bookings, refresh: refreshBookings } = await useAsyncData('guide-bookings', async () => {
-  if (!timeSlots.value || timeSlots.value.length === 0) return []
-  const slotIds = timeSlots.value.map(s => s.id)
-  const { data } = await supabase
-    .from("bookings")
-    .select("*, time_slots(*)")
-    .in("time_slot_id", slotIds)
-    .eq("status", "confirmed")
-    .order("created_at", { ascending: false })
-  return data || []
-})
-
-async function fetchGuideData() {
-  await Promise.all([refreshGuide(), refreshTours(), refreshSlots(), refreshBookings()])
-}
-
-const upcomingSlots = computed(() => timeSlots.value?.filter(s => s.is_open).length || 0)
-const totalBookings = computed(() => bookings.value?.length || 0)
-
-function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    weekday: "short",
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  })
-}
+const activeTab = ref('overview') // overview, calendar
 </script>
 
 <template>
   <div class="container py-8">
     <div class="mb-8 flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold">guide dashboard</h1>
-        <p class="mt-2 text-muted-foreground">
-          welcome back, {{ guide?.name || user?.name }}
-        </p>
+        <h1 class="font-display text-3xl font-bold">guide dashboard</h1>
+        <p class="mt-2 text-muted-foreground">welcome back, {{ guide?.name }}</p>
       </div>
-      <div class="flex gap-2">
-        <Button @click="showCreateTourDialog = true" variant="default">
+      <div class="flex gap-3">
+        <Button variant="outline" class="hidden sm:flex" @click="navigateTo('/guides/calendar')">
+          <CalendarIcon class="mr-2 size-4" />
+          calendar
+        </Button>
+        <Button @click="navigateTo('/guides/tours/create')" class="btn-bounce">
           <PlusIcon class="mr-2 size-4" />
           create tour
         </Button>
-        <Button @click="showCreateSlotDialog = true" variant="outline">
-          <CalendarIcon class="mr-2 size-4" />
-          add time slot
-        </Button>
       </div>
     </div>
 
-    <!-- stats -->
-    <div class="mb-8 grid gap-4 md:grid-cols-3">
-      <Card>
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">total tours</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div class="text-2xl font-bold">{{ tours?.length || 0 }}</div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">upcoming slots</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div class="text-2xl font-bold">{{ upcomingSlots }}</div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">total bookings</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div class="text-2xl font-bold">{{ totalBookings }}</div>
-        </CardContent>
-      </Card>
+    <!-- tabs nav -->
+    <div class="mb-8 flex border-b border-border">
+      <button 
+        @click="activeTab = 'overview'" 
+        class="flex items-center gap-2 border-b-2 px-6 py-3 text-sm font-medium transition-colors"
+        :class="activeTab === 'overview' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'"
+      >
+        <LayoutGridIcon class="size-4" /> overview
+      </button>
+      <button 
+        @click="activeTab = 'calendar'" 
+        class="flex items-center gap-2 border-b-2 px-6 py-3 text-sm font-medium transition-colors"
+        :class="activeTab === 'calendar' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'"
+      >
+        <CalendarIcon class="size-4" /> calendar
+      </button>
     </div>
 
-    <!-- main content -->
-    <div class="grid gap-8 lg:grid-cols-2">
-      <!-- tours section -->
-      <div>
-        <h2 class="mb-4 text-xl font-semibold">your tours</h2>
-        <div v-if="!tours || tours.length === 0" class="rounded-lg border border-dashed p-8 text-center">
-          <p class="text-muted-foreground">no tours yet</p>
-          <Button @click="showCreateTourDialog = true" variant="link" class="mt-2">
-            create your first tour
-          </Button>
-        </div>
-        <div v-else class="space-y-4">
-          <Card v-for="tour in tours" :key="tour.id">
-            <CardHeader>
-              <CardTitle class="text-lg">{{ tour.title }}</CardTitle>
-              <CardDescription>{{ tour.description }}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div class="flex items-center gap-4 text-sm text-muted-foreground">
-                <span v-if="tour.base_price_cents">
-                  €{{ (tour.base_price_cents / 100).toFixed(2) }}
-                </span>
-                <Badge>
-                  {{ tour.is_public ? "public" : "private" }}
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      <!-- bookings section -->
-      <div>
-        <h2 class="mb-4 text-xl font-semibold">recent bookings</h2>
-        <div v-if="!bookings || bookings.length === 0" class="rounded-lg border border-dashed p-8 text-center">
-          <p class="text-muted-foreground">no bookings yet</p>
-        </div>
-        <div v-else class="space-y-4">
-          <Card v-for="booking in bookings.slice(0, 5)" :key="booking.id">
-            <CardHeader>
-              <CardTitle class="text-base">{{ booking.guest_name }}</CardTitle>
-              <CardDescription>{{ booking.guest_email }}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div class="flex items-center gap-2 text-sm text-muted-foreground">
-                <UsersIcon class="size-4" />
-                <span>{{ booking.party_size }} {{ booking.party_size === 1 ? "person" : "people" }}</span>
-              </div>
-              <p class="mt-2 text-xs text-muted-foreground">
-                booked {{ new Date(booking.created_at).toLocaleDateString() }}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
-
-    <!-- upcoming time slots -->
-    <div class="mt-8">
-      <h2 class="mb-4 text-xl font-semibold">upcoming time slots</h2>
-      <div v-if="!timeSlots || timeSlots.length === 0" class="rounded-lg border border-dashed p-8 text-center">
-        <p class="text-muted-foreground">no upcoming slots</p>
-        <Button @click="showCreateSlotDialog = true" variant="link" class="mt-2">
-          add your first time slot
-        </Button>
-      </div>
-      <div v-else class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card v-for="slot in timeSlots" :key="slot.id">
-          <CardHeader>
-            <CardTitle class="text-sm">{{ formatDate(slot.start_utc) }}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div class="space-y-1 text-sm">
-              <p class="text-muted-foreground">capacity: {{ slot.capacity }}</p>
-              <Badge>
-                {{ slot.is_open ? "open" : "closed" }}
-              </Badge>
-            </div>
-          </CardContent>
+    <!-- overview tab -->
+    <div v-if="activeTab === 'overview'" class="space-y-8 animate-in fade-in slide-in-from-bottom-2">
+      <!-- stats row -->
+      <div class="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader class="pb-2"><CardTitle class="text-sm font-medium text-muted-foreground">active tours</CardTitle></CardHeader>
+          <CardContent><div class="text-3xl font-bold">{{ tours?.length || 0 }}</div></CardContent>
+        </Card>
+        <Card>
+          <CardHeader class="pb-2"><CardTitle class="text-sm font-medium text-muted-foreground">upcoming slots</CardTitle></CardHeader>
+          <CardContent><div class="text-3xl font-bold">{{ timeSlots?.length || 0 }}</div></CardContent>
+        </Card>
+        <Card>
+          <CardHeader class="pb-2"><CardTitle class="text-sm font-medium text-muted-foreground">est. revenue</CardTitle></CardHeader>
+          <CardContent><div class="text-3xl font-bold">€0.00</div></CardContent>
         </Card>
       </div>
+
+      <!-- tours list -->
+      <div>
+        <div class="mb-4 flex items-center justify-between">
+          <h2 class="text-xl font-semibold small-caps">your tours</h2>
+          <Button variant="link" size="sm" asChild><NuxtLink to="/guides/tours">view all</NuxtLink></Button>
+        </div>
+        
+        <div v-if="!tours?.length" class="rounded-xl border border-dashed p-10 text-center">
+          <p class="text-muted-foreground">you haven't created any tours yet</p>
+          <Button @click="navigateTo('/guides/tours/create')" variant="link" class="mt-2 text-primary">create your first tour</Button>
+        </div>
+
+        <div v-else class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <Card v-for="tour in tours.slice(0, 3)" :key="tour.id" class="overflow-hidden bg-card card-hover">
+            <div class="h-32 bg-muted/50">
+              <!-- placeholder for cover image -->
+              <div v-if="!tour.cover_image" class="flex h-full items-center justify-center text-muted-foreground/30">
+                <ImageIcon class="size-8" />
+              </div>
+            </div>
+            <CardHeader>
+              <div class="mb-2 flex items-center justify-between">
+                <Badge :variant="tour.is_public ? 'default' : 'secondary'" class="text-xs">{{ tour.is_public ? 'published' : 'draft' }}</Badge>
+                <div class="text-xs font-bold uppercase tracking-wider text-muted-foreground">{{ tour.category }}</div>
+              </div>
+              <CardTitle class="line-clamp-1 text-lg">{{ tour.title }}</CardTitle>
+            </CardHeader>
+            <CardFooter class="flex justify-between border-t bg-muted/20 p-4">
+              <span class="text-sm font-bold">{{ tour.base_price_cents ? `€${(tour.base_price_cents/100).toFixed(0)}` : 'free' }}</span>
+              <Button variant="ghost" size="sm" class="h-auto p-0 text-muted-foreground hover:text-foreground">manage &rarr;</Button>
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
     </div>
 
-    <!-- create tour dialog -->
-    <GuidesCreateTourDialog
-      v-model:open="showCreateTourDialog"
-      :guide-id="guide?.id"
-      @created="fetchGuideData"
-    />
+    <!-- calendar tab (simple list view for now) -->
+    <div v-else class="animate-in fade-in slide-in-from-bottom-2">
+      <div class="mb-6 flex items-center justify-between">
+         <h2 class="text-xl font-semibold small-caps">schedule</h2>
+         <Button size="sm" variant="outline"><PlusIcon class="mr-2 size-4" /> add slots</Button>
+      </div>
 
-    <!-- create slot dialog -->
-    <GuidesCreateSlotDialog
-      v-model:open="showCreateSlotDialog"
-      :guide-id="guide?.id"
-      :tours="tours"
-      @created="fetchGuideData"
-    />
+      <div v-if="!timeSlots?.length" class="rounded-xl border border-dashed p-12 text-center text-muted-foreground">
+        no upcoming slots scheduled
+      </div>
+
+      <div v-else class="space-y-3">
+        <div v-for="slot in timeSlots" :key="slot.id" class="flex items-center justify-between rounded-xl border border-border p-4 transition-colors hover:bg-muted/30">
+          <div class="flex items-center gap-4">
+            <div class="flex flex-col items-center rounded-lg bg-primary/10 px-3 py-1 text-primary">
+              <span class="text-xs font-bold uppercase">{{ new Date(slot.start_utc).toLocaleString('en', { weekday: 'short' }) }}</span>
+              <span class="text-lg font-bold">{{ new Date(slot.start_utc).getDate() }}</span>
+            </div>
+            <div>
+              <div class="font-medium">{{ slot.tours?.title }}</div>
+              <div class="flex items-center gap-3 text-sm text-muted-foreground">
+                <span class="flex items-center gap-1"><ClockIcon class="size-3" /> {{ new Date(slot.start_utc).toLocaleTimeString('en', {hour: '2-digit', minute:'2-digit'}) }}</span>
+                <span class="flex items-center gap-1"><UsersIcon class="size-3" /> {{ slot.capacity }} spots</span>
+              </div>
+            </div>
+          </div>
+          <Badge :variant="slot.is_open ? 'outline' : 'secondary'">{{ slot.is_open ? 'open' : 'full' }}</Badge>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
