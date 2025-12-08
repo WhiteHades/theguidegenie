@@ -4,7 +4,9 @@
   import { VisuallyHidden } from "radix-vue";
 
   const route = useRoute();
-  const { y: verticalScrollPosition } = useWindowScroll();
+  const verticalScrollPosition = import.meta.server
+    ? ref(0)
+    : useWindowScroll().y;
   const { user } = useAuth();
 
   const isTop = computed(() => verticalScrollPosition.value < 10);
