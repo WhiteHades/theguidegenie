@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
 export default defineNuxtPlugin({
     name: 'supabase',
@@ -9,7 +9,22 @@ export default defineNuxtPlugin({
         const supabaseUrl = config.public.supabaseUrl as string
         const supabaseKey = config.public.supabaseAnonKey as string
 
-        const supabase = createClient(supabaseUrl, supabaseKey)
+        if (!supabaseUrl || !supabaseKey) {
+            console.warn('[supabase] Missing supabaseUrl or supabaseAnonKey')
+            return {
+                provide: {
+                    supabase: null,
+                },
+            }
+        }
+
+        const supabase = createClient(supabaseUrl, supabaseKey, {
+            auth: {
+                persistSession: import.meta.client,
+                autoRefreshToken: import.meta.client,
+                detectSessionInUrl: import.meta.client,
+            }
+        })
 
         return {
             provide: {
@@ -18,4 +33,3 @@ export default defineNuxtPlugin({
         }
     }
 })
-

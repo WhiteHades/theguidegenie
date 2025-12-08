@@ -1,12 +1,18 @@
 <script setup lang="ts">
-import { MailIcon, LockIcon, ArrowRightIcon, SparklesIcon } from "lucide-vue-next";
+import { MailIcon, LockIcon, ArrowRightIcon, CompassIcon } from "lucide-vue-next";
 import { z } from "zod";
 import { toast } from "@/modules/ui/components/toast";
 
 definePageMeta({ layout: "saas-auth" });
-useSeoMeta({ title: "guide login" });
+useSeoMeta({ title: "sign in" });
 
-const { signin, checkIsGuide, loading: authLoading } = useAuth();
+const { signin, isAuthenticated } = useAuth();
+
+watchEffect(() => {
+  if (isAuthenticated.value) {
+    navigateTo("/tours");
+  }
+});
 
 const formSchema = toTypedSchema(
   z.object({
@@ -20,14 +26,18 @@ const form = useForm({
   initialValues: { email: "", password: "" },
 });
 
-const { handleSubmit, isSubmitting, errors, setFieldError } = form;
+const { handleSubmit, isSubmitting, setFieldError } = form;
 
 const onSubmit = handleSubmit(async (values) => {
   try {
-    await signin(values.email, values.password);
-    const isGuide = await checkIsGuide();
+    const user = await signin(values.email, values.password);
     toast({ title: "welcome back!", variant: "success" });
-    navigateTo(isGuide ? "/guides/dashboard" : "/guides/onboarding");
+
+    if (user.user_type === "guide") {
+      navigateTo("/guides/dashboard");
+    } else {
+      navigateTo("/tours");
+    }
   } catch (e: any) {
     setFieldError("email", e.message || "invalid credentials");
     toast({ title: "login failed", description: e.message, variant: "error" });
@@ -39,18 +49,16 @@ const onSubmit = handleSubmit(async (values) => {
   <div class="space-y-6">
     <div class="space-y-2 text-center">
       <Badge variant="info" class="inline-flex items-center gap-1.5">
-        <SparklesIcon class="size-3" />
-        guide portal
-      </Badge>
-      <h1 class="font-display text-2xl font-semibold tracking-tight">
+        <CompassIcon class="size-3" />
         welcome back
-      </h1>
+      </Badge>
+      <h1 class="font-display text-2xl font-semibold tracking-tight">sign in</h1>
       <p class="text-sm text-muted-foreground">
-        sign in to manage your tours
+        continue your budapest adventure
       </p>
     </div>
 
-    <SocialLoginButtons redirect-to="/guides/dashboard" />
+    <SocialLoginButtons />
 
     <div class="relative">
       <Separator />
@@ -86,7 +94,7 @@ const onSubmit = handleSubmit(async (values) => {
           <div class="flex items-center justify-between">
             <FormLabel>password</FormLabel>
             <Button variant="link" size="sm" class="inline h-auto p-0 text-xs text-muted-foreground" as-child>
-              <NuxtLink to="/guides/forgot-password">forgot password?</NuxtLink>
+              <NuxtLink to="/auth/forgot-password">forgot password?</NuxtLink>
             </Button>
           </div>
           <div class="relative">
@@ -125,16 +133,16 @@ const onSubmit = handleSubmit(async (values) => {
     </div>
 
     <Button variant="outline" class="w-full" as-child>
-      <NuxtLink to="/guides/signup">
-        become a guide
+      <NuxtLink to="/auth/tourist/signup">
+        create account
         <ArrowRightIcon class="ml-2 size-4" />
       </NuxtLink>
     </Button>
 
     <p class="text-center text-xs text-muted-foreground">
-      looking to book a tour?
+      are you a guide?
       <Button variant="link" size="sm" class="inline h-auto p-0 text-xs" as-child>
-        <NuxtLink to="/tours">browse tours</NuxtLink>
+        <NuxtLink to="/guides/login">guide login</NuxtLink>
       </Button>
     </p>
   </div>

@@ -1,16 +1,28 @@
-// middleware to protect guide routes
+// middleware to protect guide dashboard and management routes
+// ensures user is logged in AND has a guide profile
 export default defineNuxtRouteMiddleware(async (to, from) => {
-    const { user, checkIsGuide } = useAuth()
+    const { user, guideProfile, checkIsGuide, initialized, loading } = useAuth()
 
-    // check if user is logged in
+    // wait for auth to initialize on client
+    if (import.meta.client && !initialized.value) {
+        // give it a moment to load
+        await new Promise(resolve => setTimeout(resolve, 100))
+    }
+
+    // not logged in - redirect to guide login
     if (!user.value) {
-        return navigateTo('/guides/login')
+        return navigateTo('/guides/login', { 
+            replace: true,
+            query: { redirect: to.fullPath }
+        })
     }
 
     // check if user has guide profile
-    const isGuide = await checkIsGuide()
-    if (!isGuide) {
-        return navigateTo('/guides/onboarding')
+    if (!guideProfile.value) {
+        const isGuide = await checkIsGuide()
+        if (!isGuide) {
+            // logged in but no guide profile - redirect to onboarding
+            return navigateTo('/guides/onboarding', { replace: true })
+        }
     }
 })
-

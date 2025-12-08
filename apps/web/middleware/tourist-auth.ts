@@ -1,5 +1,5 @@
-// middleware to check if user is authenticated (but not necessarily a guide yet)
-// used for guide onboarding route
+// middleware to check if tourist user is authenticated
+// used for routes that require a logged-in tourist (bookings, favorites, etc.)
 export default defineNuxtRouteMiddleware(async (to, from) => {
     const { user, initialized } = useAuth()
 
@@ -9,9 +9,10 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     }
 
     if (!user.value) {
-        return navigateTo('/guides/login', {
+        return navigateTo('/auth/tourist/login', {
             replace: true,
             query: { redirect: to.fullPath }
         })
     }
 })
+

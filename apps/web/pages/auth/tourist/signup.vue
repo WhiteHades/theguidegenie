@@ -4,16 +4,22 @@ import {
   MailIcon,
   LockIcon,
   ArrowRightIcon,
-  MapPinIcon,
+  CompassIcon,
   CheckIcon,
 } from "lucide-vue-next";
 import { z } from "zod";
 import { toast } from "@/modules/ui/components/toast";
 
 definePageMeta({ layout: "saas-auth" });
-useSeoMeta({ title: "become a guide" });
+useSeoMeta({ title: "create account" });
 
-const { signup } = useAuth();
+const { signup, isAuthenticated } = useAuth();
+
+watchEffect(() => {
+  if (isAuthenticated.value) {
+    navigateTo("/tours");
+  }
+});
 
 const formSchema = toTypedSchema(
   z.object({
@@ -36,14 +42,14 @@ const onSubmit = handleSubmit(async (values) => {
       email: values.email,
       password: values.password,
       name: values.name,
-      userType: "guide",
+      userType: "tourist",
     });
     toast({
-      title: "account created!",
-      description: "let's set up your guide profile",
+      title: "welcome to the guide genie!",
+      description: "start exploring tours",
       variant: "success",
     });
-    navigateTo("/guides/onboarding");
+    navigateTo("/tours");
   } catch (e: any) {
     setFieldError("email", e.message || "signup failed");
     toast({ title: "signup failed", description: e.message, variant: "error" });
@@ -51,10 +57,10 @@ const onSubmit = handleSubmit(async (values) => {
 });
 
 const perks = [
-  "reach thousands of tourists",
-  "set your own schedule",
-  "keep 95% of earnings",
-  "free booking system",
+  "instant booking confirmation",
+  "message guides directly",
+  "save favorite tours",
+  "exclusive member deals",
 ];
 </script>
 
@@ -62,14 +68,14 @@ const perks = [
   <div class="space-y-6">
     <div class="space-y-2 text-center">
       <Badge variant="info" class="inline-flex items-center gap-1.5">
-        <MapPinIcon class="size-3" />
-        budapest guides
+        <CompassIcon class="size-3" />
+        explore budapest
       </Badge>
       <h1 class="font-display text-2xl font-semibold tracking-tight">
-        become a guide
+        create your account
       </h1>
       <p class="text-sm text-muted-foreground">
-        share your passion with travelers worldwide
+        join thousands discovering budapest
       </p>
     </div>
 
@@ -79,12 +85,12 @@ const perks = [
         :key="perk"
         class="flex items-center gap-2 border-0 bg-muted/50 px-3 py-2"
       >
-        <CheckIcon class="size-3.5 shrink-0 text-primary" />
+        <CheckIcon class="size-3.5 shrink-0 text-accent" />
         <span class="text-xs">{{ perk }}</span>
       </Card>
     </div>
 
-    <SocialLoginButtons redirect-to="/guides/onboarding" />
+    <SocialLoginButtons />
 
     <div class="relative">
       <Separator />
@@ -98,7 +104,7 @@ const perks = [
     <form @submit.prevent="onSubmit" class="space-y-4">
       <FormField v-slot="{ componentField }" name="name">
         <FormItem>
-          <FormLabel>full name</FormLabel>
+          <FormLabel>your name</FormLabel>
           <div class="relative">
             <UserIcon
               class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
@@ -106,7 +112,7 @@ const perks = [
             <Input
               v-bind="componentField"
               class="pl-10"
-              placeholder="john doe"
+              placeholder="how should guides address you?"
               autocomplete="name"
             />
           </div>
@@ -168,7 +174,7 @@ const perks = [
         <Spinner v-if="isSubmitting" size="sm" class="mr-2" />
         <span v-if="isSubmitting">creating account...</span>
         <template v-else>
-          create guide account
+          create account
           <ArrowRightIcon class="ml-2 size-4" />
         </template>
       </Button>
@@ -179,15 +185,22 @@ const perks = [
       <span
         class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-3 text-xs text-muted-foreground"
       >
-        already a guide?
+        already have an account?
       </span>
     </div>
 
     <Button variant="outline" class="w-full" as-child>
-      <NuxtLink to="/guides/login">
+      <NuxtLink to="/auth/tourist/login">
         sign in
         <ArrowRightIcon class="ml-2 size-4" />
       </NuxtLink>
     </Button>
+
+    <p class="text-center text-xs text-muted-foreground">
+      want to offer tours?
+      <Button variant="link" size="sm" class="inline h-auto p-0 text-xs" as-child>
+        <NuxtLink to="/guides/signup">become a guide</NuxtLink>
+      </Button>
+    </p>
   </div>
 </template>
