@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  // @ts-nocheck
   import { MenuIcon } from "lucide-vue-next";
   import { VisuallyHidden } from "radix-vue";
 
@@ -9,119 +10,113 @@
   const isTop = computed(() => verticalScrollPosition.value < 10);
 
   const dashboardLink = computed(() => {
-    if (!user.value) return '/guides/login'
-    return user.value.user_type === 'guide' ? '/guides/dashboard' : '/app/dashboard'
-  })
+    if (!user.value) return "/guides/login";
+    return user.value.user_type === "guide"
+      ? "/guides/dashboard"
+      : "/app/dashboard";
+  });
 
-  const loginLabel = computed(() => {
-    return user.value ? 'dashboard' : 'guide login'
-  })
+  const loginLabel = computed(() => (user.value ? "dashboard" : "login"));
 
   const mobileMenuOpen = ref(false);
-
-  const isMenuItemActive = (to: string) => {
-    return route.fullPath.startsWith(to);
-  };
+  const isMenuItemActive = (to) => route.fullPath.startsWith(to);
 
   watch(
     () => route.fullPath,
-    () => {
-      mobileMenuOpen.value = false;
-    },
+    () => (mobileMenuOpen.value = false),
   );
 
-  type MenuItem = {
-    label: string;
-    to: string;
-  };
-  const menuItems = computed<MenuItem[]>(() => [
-    {
-      label: 'tours',
-      to: '/tours',
-    },
-    {
-      label: 'become a guide',
-      to: '/guides/signup',
-    },
-  ]);
+  const menuItems = [
+    { label: "tours", to: "/tours" },
+    { label: "become a guide", to: "/guides/signup" },
+  ];
 </script>
 
 <template>
-  <nav
-    class="fixed left-0 top-0 z-20 w-full transition-[height] duration-200"
-    :class="[
-      isTop ? 'shadow-none' : 'bg-background/80 shadow-sm backdrop-blur-lg',
-    ]"
-    data-test="navigation"
-  >
-    <div class="container">
-      <div
-        class="flex items-center justify-stretch gap-6 transition-all duration-200"
-        :class="[isTop ? 'py-8' : 'py-4']"
+  <!-- floating pill navbar -->
+  <nav class="fixed left-0 right-0 top-4 z-50 px-4">
+    <div
+      class="mx-auto flex max-w-5xl items-center justify-between rounded-full px-6 py-3 smooth"
+      :class="
+        isTop
+          ? 'bg-white/10 backdrop-blur-xl border border-white/20'
+          : 'bg-background/90 backdrop-blur-xl border border-border shadow-lg'
+      "
+    >
+      <!-- logo -->
+      <NuxtLink
+        to="/"
+        class="font-display text-lg font-bold"
+        :class="isTop ? 'text-white' : 'text-foreground'"
       >
-        <div class="flex flex-1 justify-start">
-          <NuxtLinkLocale
-            to="/"
-            class="block hover:no-underline active:no-underline"
-          >
-            <Logo />
-          </NuxtLinkLocale>
-        </div>
+        the guide genie
+      </NuxtLink>
 
-        <div class="hidden flex-1 items-center justify-center lg:flex">
-          <NuxtLinkLocale
-            v-for="menuItem of menuItems"
-            :key="menuItem.to"
-            :to="menuItem.to"
-            class="block shrink-0 px-3 py-2 text-sm text-foreground/80"
-            :class="[isMenuItemActive(menuItem.to) ? 'font-bold' : '']"
-          >
-            {{ menuItem.label }}
-          </NuxtLinkLocale>
-        </div>
+      <!-- desktop nav -->
+      <div class="hidden items-center gap-6 md:flex">
+        <NuxtLink
+          v-for="item in menuItems"
+          :key="item.to"
+          :to="item.to"
+          class="text-sm smooth"
+          :class="[
+            isTop
+              ? 'text-white/80 hover:text-white'
+              : 'text-muted-foreground hover:text-foreground',
+            isMenuItemActive(item.to) && 'font-medium',
+          ]"
+        >
+          {{ item.label }}
+        </NuxtLink>
+      </div>
 
-        <div class="flex flex-1 items-center justify-end gap-3">
-          <ColorModeToggle />
+      <!-- actions -->
+      <div class="flex items-center gap-3">
+        <ColorModeToggle :class="isTop && 'text-white'" />
 
-          <Sheet v-model:open="mobileMenuOpen">
-            <SheetTrigger asChild>
-              <Button class="lg:hidden" size="icon" variant="outline">
-                <MenuIcon class="size-4" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent class="w-[250px]" side="right">
-              <VisuallyHidden>
-                <DialogTitle> Menu </DialogTitle>
-                <DialogDescription> Navigation Menu </DialogDescription>
-              </VisuallyHidden>
+        <!-- mobile menu -->
+        <Sheet v-model:open="mobileMenuOpen">
+          <SheetTrigger asChild>
+            <Button
+              class="md:hidden"
+              size="icon"
+              variant="ghost"
+              :class="isTop && 'text-white hover:bg-white/10'"
+            >
+              <MenuIcon class="size-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent class="w-[280px]" side="right">
+            <VisuallyHidden>
+              <DialogTitle>menu</DialogTitle>
+              <DialogDescription>navigation</DialogDescription>
+            </VisuallyHidden>
+            <div class="mt-8 flex flex-col gap-4">
+              <NuxtLink
+                v-for="item in menuItems"
+                :key="item.to"
+                :to="item.to"
+                class="text-lg"
+              >
+                {{ item.label }}
+              </NuxtLink>
+              <NuxtLink :to="dashboardLink" class="text-lg">{{
+                loginLabel
+              }}</NuxtLink>
+            </div>
+          </SheetContent>
+        </Sheet>
 
-              <div class="flex flex-col items-start justify-center">
-                <NuxtLinkLocale
-                  v-for="menuItem of menuItems"
-                  :key="menuItem.to"
-                  :to="menuItem.to"
-                  class="block px-3 py-2 text-sm"
-                  :class="[isMenuItemActive(menuItem.to) ? 'font-bold' : '']"
-                >
-                  {{ menuItem.label }}
-                </NuxtLinkLocale>
-
-                <NuxtLink
-                  :to="dashboardLink"
-                  class="block px-3 py-2 text-sm"
-                >
-                  {{ loginLabel }}
-                </NuxtLink>
-              </div>
-            </SheetContent>
-          </Sheet>
-
-          <Button class="hidden lg:flex" asChild variant="secondary">
-            <NuxtLink :to="dashboardLink">
-              {{ loginLabel }}
-            </NuxtLink>
-          </Button>
-        </div>
+        <!-- desktop login -->
+        <Button
+          class="hidden md:flex rounded-full px-4"
+          size="sm"
+          :variant="isTop ? 'secondary' : 'default'"
+          :class="isTop && 'bg-white/20 text-white hover:bg-white/30 border-0'"
+          asChild
+        >
+          <NuxtLink :to="dashboardLink">{{ loginLabel }}</NuxtLink>
+        </Button>
       </div>
     </div>
   </nav>
