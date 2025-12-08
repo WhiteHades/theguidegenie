@@ -29,14 +29,23 @@ interface GuideProfile {
 }
 
 export function useAuth() {
-  const supabase = useSupabase()
   const user = useState<AuthUser | null>('auth-user', () => null)
   const guideProfile = useState<GuideProfile | null>('guide-profile', () => null)
   const loading = useState('auth-loading', () => true)
   const initialized = useState('auth-initialized', () => false)
 
+  // helper to get supabase client (only available on client)
+  function getSupabase() {
+    const client = useSupabase()
+    if (!client) throw new Error('supabase client not available')
+    return client
+  }
+
   // fetch current user from db
   async function fetchUser(): Promise<AuthUser | null> {
+    if (import.meta.server) return null
+    
+    const supabase = getSupabase()
     loading.value = true
     try {
       const { data: { user: authUser } } = await supabase.auth.getUser()
@@ -110,9 +119,10 @@ export function useAuth() {
 
   // fetch guide profile
   async function fetchGuideProfile(): Promise<GuideProfile | null> {
-    if (!user.value) return null
+    if (import.meta.server || !user.value) return null
 
     try {
+      const supabase = getSupabase()
       const { data, error } = await supabase
         .from('guides')
         .select('*')
@@ -138,6 +148,7 @@ export function useAuth() {
     if (!email?.trim()) throw new Error('email is required')
     if (!password) throw new Error('password is required')
 
+    const supabase = getSupabase()
     const { data, error } = await supabase.auth.signInWithPassword({
       email: email.trim().toLowerCase(),
       password,
@@ -178,6 +189,7 @@ export function useAuth() {
 
     const redirectPath = userType === 'guide' ? '/guides/onboarding' : '/tours'
 
+    const supabase = getSupabase()
     const { data, error } = await supabase.auth.signUp({
       email: email.trim().toLowerCase(),
       password,
@@ -210,6 +222,7 @@ export function useAuth() {
 
   // sign out
   async function signout(): Promise<void> {
+    const supabase = getSupabase()
     await supabase.auth.signOut()
     user.value = null
     guideProfile.value = null
@@ -219,6 +232,7 @@ export function useAuth() {
   async function requestPasswordReset(email: string): Promise<void> {
     if (!email?.trim()) throw new Error('email is required')
 
+    const supabase = getSupabase()
     const { error } = await supabase.auth.resetPasswordForEmail(
       email.trim().toLowerCase(),
       { redirectTo: `${window.location.origin}/auth/reset-password` }
@@ -232,6 +246,7 @@ export function useAuth() {
     if (!newPassword) throw new Error('password is required')
     if (newPassword.length < 8) throw new Error('password must be at least 8 characters')
 
+    const supabase = getSupabase()
     const { error } = await supabase.auth.updateUser({ password: newPassword })
 
     if (error) throw new Error(error.message)
@@ -251,6 +266,7 @@ export function useAuth() {
   async function updateProfile(updates: { name?: string; phone?: string }): Promise<void> {
     if (!user.value) throw new Error('not authenticated')
 
+    const supabase = getSupabase()
     const { error } = await supabase
       .from('users')
       .update({
@@ -269,6 +285,7 @@ export function useAuth() {
   async function signinWithOAuth(provider: OAuthProvider, redirectTo?: string): Promise<void> {
     const defaultRedirect = `${window.location.origin}/auth/callback`
     
+    const supabase = getSupabase()
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {

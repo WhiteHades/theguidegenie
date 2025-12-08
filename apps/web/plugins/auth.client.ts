@@ -7,6 +7,12 @@ export default defineNuxtPlugin({
         const { fetchUser } = useAuth()
         const supabase = useSupabase()
 
+        // guard against missing supabase client
+        if (!supabase) {
+            console.warn('[auth] supabase client not available')
+            return
+        }
+
         // fetch current user on app load
         await fetchUser()
 
