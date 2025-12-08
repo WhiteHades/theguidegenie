@@ -86,8 +86,39 @@
         <ColorModeToggle :class="isTop && 'text-white'" />
 
         <!-- mobile menu -->
-        <Sheet v-model:open="mobileMenuOpen">
-          <SheetTrigger asChild>
+        <ClientOnly>
+          <Sheet v-model:open="mobileMenuOpen">
+            <SheetTrigger asChild>
+              <Button
+                class="md:hidden"
+                size="icon"
+                variant="ghost"
+                :class="isTop && 'text-white hover:bg-white/10'"
+              >
+                <MenuIcon class="size-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent class="w-[280px]" side="right">
+              <VisuallyHidden>
+                <DialogTitle>menu</DialogTitle>
+                <DialogDescription>navigation</DialogDescription>
+              </VisuallyHidden>
+              <div class="mt-8 flex flex-col gap-4">
+                <NuxtLink
+                  v-for="item in menuItems"
+                  :key="item.to"
+                  :to="item.to"
+                  class="text-lg"
+                >
+                  {{ item.label }}
+                </NuxtLink>
+                <NuxtLink :to="dashboardLink" class="text-lg">{{
+                  loginLabel
+                }}</NuxtLink>
+              </div>
+            </SheetContent>
+          </Sheet>
+          <template #fallback>
             <Button
               class="md:hidden"
               size="icon"
@@ -96,27 +127,8 @@
             >
               <MenuIcon class="size-5" />
             </Button>
-          </SheetTrigger>
-          <SheetContent class="w-[280px]" side="right">
-            <VisuallyHidden>
-              <DialogTitle>menu</DialogTitle>
-              <DialogDescription>navigation</DialogDescription>
-            </VisuallyHidden>
-            <div class="mt-8 flex flex-col gap-4">
-              <NuxtLink
-                v-for="item in menuItems"
-                :key="item.to"
-                :to="item.to"
-                class="text-lg"
-              >
-                {{ item.label }}
-              </NuxtLink>
-              <NuxtLink :to="dashboardLink" class="text-lg">{{
-                loginLabel
-              }}</NuxtLink>
-            </div>
-          </SheetContent>
-        </Sheet>
+          </template>
+        </ClientOnly>
 
         <!-- desktop login -->
         <Button

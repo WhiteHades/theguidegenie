@@ -6,7 +6,15 @@ const props = defineProps<{
   redirectTo?: string;
 }>();
 
-const { signinWithOAuth } = useAuth();
+// guard useAuth for ssr to avoid issues when supabase is not available
+const signinWithOAuth = (() => {
+  if (import.meta.server) return async () => {};
+  try {
+    return useAuth().signinWithOAuth;
+  } catch {
+    return async () => {};
+  }
+})();
 const loadingProvider = ref<string | null>(null);
 
 async function handleOAuth(provider: "google" | "apple") {

@@ -40,9 +40,13 @@
       <NuxtLayout>
         <NuxtPage />
       </NuxtLayout>
-      <Toaster />
+      <ClientOnly>
+        <Toaster />
+      </ClientOnly>
       <NuxtLoadingIndicator color="var(--colors-primary)" />
-      <Analytics />
+      <ClientOnly>
+        <Analytics />
+      </ClientOnly>
     </GradientBackgroundWrapper>
   </ConfigProvider>
 </template>
