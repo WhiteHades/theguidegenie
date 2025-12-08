@@ -33,6 +33,9 @@ dist/
 *.swp
 *.swo
 *~
+.cursor/
+.vscode/
+.turbo/
 
 # os
 .DS_Store
@@ -47,4 +50,5 @@ yarn-error.log*
 
 # database
 prisma/dev.db
-prisma/dev.db-journalapps/web/.data/
+prisma/dev.db-journal
+apps/web/.data/
