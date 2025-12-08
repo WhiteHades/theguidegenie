@@ -35,6 +35,7 @@ export default defineNuxtConfig({
       auth: {
         redirectPath: "/app/dashboard",
       },
+      unsplashAccessKey: process.env.NUXT_PUBLIC_UNSPLASH_ACCESS_KEY,
     },
   },
 
@@ -70,6 +71,40 @@ export default defineNuxtConfig({
 
   app: {
     head: {
+      // critical inline CSS to prevent FOUC
+      style: [
+        {
+          children: `
+            html { background-color: hsl(222.2, 84%, 4.9%); }
+            html.light { background-color: hsl(0, 0%, 100%); }
+            body { opacity: 0; transition: opacity 0.15s ease-in; }
+            body.ready { opacity: 1; }
+          `,
+        },
+      ],
+      script: [
+        {
+          children: `
+            (function() {
+              var colorMode = localStorage.getItem('NUXT_COLOR_MODE');
+              if (colorMode === 'light') {
+                document.documentElement.classList.add('light');
+              } else if (colorMode === 'dark') {
+                document.documentElement.classList.add('dark');
+              } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+                document.documentElement.classList.add('light');
+              } else {
+                document.documentElement.classList.add('dark');
+              }
+              document.addEventListener('DOMContentLoaded', function() {
+                requestAnimationFrame(function() {
+                  document.body.classList.add('ready');
+                });
+              });
+            })();
+          `,
+        },
+      ],
       link: [
         {
           rel: "icon",
@@ -101,6 +136,18 @@ export default defineNuxtConfig({
     future: {
       nativeSWR: true,
     },
+    routeRules: {
+      '/**': {
+        headers: {
+          'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'DENY',
+          'X-XSS-Protection': '1; mode=block',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+        },
+      },
+    },
   },
 
   modules: [
@@ -118,9 +165,13 @@ export default defineNuxtConfig({
 
   // @nuxtjs/google-fonts
   googleFonts: {
-    display: "swap",
+    display: "block",
+    preload: true,
+    prefetch: true,
     families: {
-      Poppins: [400, 500, 600, 700],
+      'Playfair Display': [600, 700],
+      'DM Sans': [400, 500, 600, 700],
+      Inter: [400, 500, 600],
     },
   },
 
@@ -141,7 +192,7 @@ export default defineNuxtConfig({
 
   // @nuxt/image
   image: {
-    domains: ["lh3.googleusercontent.com", "avatars.githubusercontent.com"],
+    domains: ["lh3.googleusercontent.com", "avatars.githubusercontent.com", "images.unsplash.com"],
   },
 
   shadcn: {
