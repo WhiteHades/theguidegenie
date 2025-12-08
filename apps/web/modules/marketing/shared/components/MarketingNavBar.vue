@@ -1,9 +1,9 @@
 <script setup lang="ts">
-  // @ts-nocheck
-  import { MenuIcon } from "lucide-vue-next";
-  import { VisuallyHidden } from "radix-vue";
+  import { MenuIcon, XIcon, SunIcon, MoonIcon } from "lucide-vue-next";
 
   const route = useRoute();
+  const colorMode = useColorMode();
+  
   const verticalScrollPosition = import.meta.server
     ? ref(0)
     : useWindowScroll().y;
@@ -21,21 +21,26 @@
   const isTop = computed(() => verticalScrollPosition.value < 10);
 
   const dashboardLink = computed(() => {
-    if (!user.value) return "/guides/login";
+    if (!user.value) return "/auth/tourist/login";
     return user.value.user_type === "guide"
       ? "/guides/dashboard"
       : "/app/dashboard";
   });
 
-  const loginLabel = computed(() => (user.value ? "dashboard" : "login"));
-
   const mobileMenuOpen = ref(false);
-  const isMenuItemActive = (to) => route.fullPath.startsWith(to);
+  const authDialogOpen = ref(false);
+  const isMenuItemActive = (to: string) => route.fullPath.startsWith(to);
 
+  // Close mobile menu on route change
   watch(
     () => route.fullPath,
     () => (mobileMenuOpen.value = false),
   );
+
+  // Toggle color mode
+  function toggleColorMode() {
+    colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark';
+  }
 
   const menuItems = [
     { label: "tours", to: "/tours" },
@@ -45,9 +50,9 @@
 
 <template>
   <!-- floating pill navbar -->
-  <nav class="fixed left-0 right-0 top-4 z-50 px-4">
+  <nav class="fixed left-0 right-0 top-2 z-50 px-2 sm:top-4 sm:px-4">
     <div
-      class="mx-auto flex max-w-5xl items-center justify-between rounded-full px-6 py-3 smooth"
+      class="mx-auto flex max-w-5xl items-center justify-between rounded-full px-4 py-2.5 smooth sm:px-6 sm:py-3"
       :class="
         isTop
           ? 'bg-white/10 backdrop-blur-xl border border-white/20'
@@ -57,7 +62,7 @@
       <!-- logo -->
       <NuxtLink
         to="/"
-        class="font-display text-lg font-bold"
+        class="font-display text-base font-bold sm:text-lg"
         :class="isTop ? 'text-white' : 'text-foreground'"
       >
         the guide genie
@@ -82,65 +87,125 @@
       </div>
 
       <!-- actions -->
-      <div class="flex items-center gap-3">
-        <ColorModeToggle :class="isTop && 'text-white'" />
-
-        <!-- mobile menu -->
+      <div class="flex items-center gap-1 sm:gap-2">
+        <!-- Theme toggle - simple button that always works -->
         <ClientOnly>
-          <Sheet v-model:open="mobileMenuOpen">
-            <SheetTrigger asChild>
-              <Button
-                class="md:hidden"
-                size="icon"
-                variant="ghost"
-                :class="isTop && 'text-white hover:bg-white/10'"
-              >
-                <MenuIcon class="size-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent class="w-[280px]" side="right">
-              <VisuallyHidden>
-                <DialogTitle>menu</DialogTitle>
-                <DialogDescription>navigation</DialogDescription>
-              </VisuallyHidden>
-              <div class="mt-8 flex flex-col gap-4">
-                <NuxtLink
-                  v-for="item in menuItems"
-                  :key="item.to"
-                  :to="item.to"
-                  class="text-lg"
-                >
-                  {{ item.label }}
-                </NuxtLink>
-                <NuxtLink :to="dashboardLink" class="text-lg">{{
-                  loginLabel
-                }}</NuxtLink>
-              </div>
-            </SheetContent>
-          </Sheet>
+          <button
+            type="button"
+            class="flex size-8 sm:size-9 items-center justify-center rounded-full transition-colors"
+            :class="isTop ? 'text-white hover:bg-white/10' : 'text-foreground hover:bg-muted'"
+            @click="toggleColorMode"
+            aria-label="Toggle color mode"
+          >
+            <SunIcon v-if="colorMode.value === 'dark'" class="size-4 sm:size-5" />
+            <MoonIcon v-else class="size-4 sm:size-5" />
+          </button>
           <template #fallback>
-            <Button
-              class="md:hidden"
-              size="icon"
-              variant="ghost"
-              :class="isTop && 'text-white hover:bg-white/10'"
-            >
-              <MenuIcon class="size-5" />
-            </Button>
+            <div class="size-8 sm:size-9" />
           </template>
         </ClientOnly>
 
-        <!-- desktop login -->
-        <Button
-          class="hidden md:flex rounded-full px-4"
-          size="sm"
-          :variant="isTop ? 'secondary' : 'default'"
-          :class="isTop && 'bg-white/20 text-white hover:bg-white/30 border-0'"
-          asChild
+        <!-- Mobile menu button -->
+        <button
+          type="button"
+          class="flex size-8 sm:size-9 items-center justify-center rounded-full transition-colors md:hidden"
+          :class="isTop ? 'text-white hover:bg-white/10' : 'text-foreground hover:bg-muted'"
+          @click="mobileMenuOpen = !mobileMenuOpen"
+          aria-label="Toggle menu"
         >
-          <NuxtLink :to="dashboardLink">{{ loginLabel }}</NuxtLink>
-        </Button>
+          <MenuIcon v-if="!mobileMenuOpen" class="size-5" />
+          <XIcon v-else class="size-5" />
+        </button>
+
+        <!-- desktop auth buttons -->
+        <template v-if="user">
+          <Button
+            class="hidden md:flex rounded-full px-4"
+            size="sm"
+            :variant="isTop ? 'secondary' : 'default'"
+            :class="isTop && 'bg-white/20 text-white hover:bg-white/30 border-0'"
+            asChild
+          >
+            <NuxtLink :to="dashboardLink">dashboard</NuxtLink>
+          </Button>
+        </template>
+        <template v-else>
+          <Button
+            class="hidden md:flex rounded-full px-4"
+            size="sm"
+            variant="ghost"
+            :class="isTop ? 'text-white hover:bg-white/10' : ''"
+            asChild
+          >
+            <NuxtLink to="/auth/tourist/login">login</NuxtLink>
+          </Button>
+          <Button
+            class="hidden md:flex rounded-full px-4"
+            size="sm"
+            :variant="isTop ? 'secondary' : 'default'"
+            :class="isTop && 'bg-white text-primary hover:bg-white/90 border-0'"
+            @click="authDialogOpen = true"
+          >
+            sign up
+          </Button>
+        </template>
       </div>
     </div>
+    
+    <!-- Mobile menu dropdown (simple, no Sheet component) -->
+    <Transition
+      enter-active-class="transition-all duration-200 ease-out"
+      leave-active-class="transition-all duration-150 ease-in"
+      enter-from-class="opacity-0 -translate-y-2"
+      leave-to-class="opacity-0 -translate-y-2"
+    >
+      <div
+        v-if="mobileMenuOpen"
+        class="mx-auto mt-2 max-w-5xl rounded-2xl border border-border bg-background/95 p-4 shadow-xl backdrop-blur-xl md:hidden"
+      >
+        <div class="flex flex-col gap-2">
+          <NuxtLink
+            v-for="item in menuItems"
+            :key="item.to"
+            :to="item.to"
+            class="rounded-lg px-4 py-2.5 text-base font-medium transition-colors hover:bg-muted"
+            :class="isMenuItemActive(item.to) && 'bg-muted'"
+            @click="mobileMenuOpen = false"
+          >
+            {{ item.label }}
+          </NuxtLink>
+          
+          <div class="my-2 h-px bg-border" />
+          
+          <template v-if="user">
+            <NuxtLink
+              :to="dashboardLink"
+              class="rounded-lg px-4 py-2.5 text-base font-medium transition-colors hover:bg-muted"
+              @click="mobileMenuOpen = false"
+            >
+              dashboard
+            </NuxtLink>
+          </template>
+          <template v-else>
+            <NuxtLink
+              to="/auth/tourist/login"
+              class="rounded-lg px-4 py-2.5 text-base font-medium transition-colors hover:bg-muted"
+              @click="mobileMenuOpen = false"
+            >
+              login
+            </NuxtLink>
+            <Button 
+              class="mt-2 w-full" 
+              @click="authDialogOpen = true; mobileMenuOpen = false"
+            >
+              sign up
+            </Button>
+          </template>
+        </div>
+      </div>
+    </Transition>
   </nav>
+  
+  <!-- Auth choice dialog -->
+  <AuthChoiceDialog v-model:open="authDialogOpen" />
 </template>

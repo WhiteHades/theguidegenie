@@ -2,27 +2,50 @@
 import {
   MapPinIcon,
   ClockIcon,
-  UsersIcon,
   StarIcon,
   ArrowRightIcon,
   CheckIcon,
   SparklesIcon,
   CalendarIcon,
   HeartIcon,
+  ExternalLinkIcon,
 } from "lucide-vue-next";
 
 definePageMeta({ layout: "marketing" });
 
-const { searchPhotos, buildImageUrl } = useUnsplash();
+const { searchPhotos, buildImageUrl, trackDownload } = useUnsplash();
+
+// Fallback images in case Unsplash API fails
+const fallbackImages = [
+  "https://images.unsplash.com/photo-1541849546-216549ae216d?w=1920&q=90",
+  "https://images.unsplash.com/photo-1551867633-194f125bddfa?w=800&q=85",
+  "https://images.unsplash.com/photo-1565426873118-a17ed65d74b9?w=800&q=85",
+  "https://images.unsplash.com/photo-1577587230708-187fdbef4d91?w=800&q=85",
+  "https://images.unsplash.com/photo-1509395176047-4a66953fd231?w=800&q=85",
+  "https://images.unsplash.com/photo-1560969184-10fe8719e047?w=800&q=85",
+  "https://images.unsplash.com/photo-1549923746-c502d488b3ea?w=800&q=85",
+  "https://images.unsplash.com/photo-1571847140471-1d7766e825ea?w=800&q=85",
+];
 
 // client-side data refs
 const budapestPhotos = ref<any[]>([]);
 const featuredTours = ref<any[]>([]);
 const loading = ref(true);
+const heroImageLoaded = ref(false);
+const dynamicHeroImage = ref<string | null>(null);
+const animationsInitialized = ref(false);
+
+// Current hero photo data for attribution
+const heroPhotoData = computed(() => budapestPhotos.value?.[0] || null);
 
 // fetch data on client only
 onMounted(async () => {
   await nextTick();
+  
+  // Initialize GSAP animations after a short delay
+  setTimeout(() => {
+    initScrollAnimations();
+  }, 100);
   
   const supabase = useSupabase();
   
@@ -33,7 +56,25 @@ onMounted(async () => {
       perPage: 10,
       orientation: "landscape",
     });
-    budapestPhotos.value = photos || [];
+    
+    if (photos && photos.length > 0) {
+      budapestPhotos.value = photos;
+      
+      // Preload the hero image
+      const heroUrl = buildImageUrl(photos[0].urls.raw, { width: 1920, quality: 90 });
+      const img = new Image();
+      img.onload = () => {
+        dynamicHeroImage.value = heroUrl;
+        heroImageLoaded.value = true;
+        trackDownload(photos[0].links.download_location);
+      };
+      img.onerror = () => {
+        console.warn("Failed to load hero image");
+      };
+      img.src = heroUrl;
+    } else {
+      console.warn("No photos from Unsplash API, using fallbacks");
+    }
 
     // fetch tours
     if (supabase) {
@@ -56,25 +97,63 @@ onMounted(async () => {
   }
 });
 
-// computed images from api
-const heroImage = computed(() => {
-  if (budapestPhotos.value?.[0]) {
-    return buildImageUrl(budapestPhotos.value[0].urls.raw, {
-      width: 1920,
-      quality: 90,
-    });
-  }
-  return "https://images.unsplash.com/photo-1541849546-216549ae216d?w=1920&q=90";
-});
+// Computed hero image - always shows default first
+const heroImage = computed(() => dynamicHeroImage.value || fallbackImages[0]);
 
+// computed images from api with fallbacks
 const galleryImages = computed(() => {
-  if (!budapestPhotos.value?.length) return [];
-  return budapestPhotos.value.slice(1, 7).map((photo: any) => ({
-    src: buildImageUrl(photo.urls.raw, { width: 800, quality: 85 }),
-    alt: photo.alt_description || "budapest",
-    photographer: photo.user.name,
+  if (budapestPhotos.value?.length > 1) {
+    return budapestPhotos.value.slice(1, 7).map((photo: any) => ({
+      src: buildImageUrl(photo.urls.raw, { width: 800, quality: 85 }),
+      alt: photo.alt_description || "budapest",
+      photographer: photo.user?.name || "Unsplash",
+      photographerUrl: photo.user?.links?.html || "https://unsplash.com",
+      photoUrl: photo.links?.html || "https://unsplash.com",
+    }));
+  }
+  // Fallback images if API fails
+  return fallbackImages.slice(1, 7).map((src, i) => ({
+    src,
+    alt: "budapest landmark",
+    photographer: "Unsplash",
+    photographerUrl: "https://unsplash.com",
+    photoUrl: "https://unsplash.com",
   }));
 });
+
+// GSAP scroll animations - simplified and more robust
+function initScrollAnimations() {
+  if (typeof window === 'undefined') return;
+  if (animationsInitialized.value) return;
+  
+  animationsInitialized.value = true;
+  
+  // Use CSS-based animations as alternative to GSAP for reliability
+  const animateOnScroll = () => {
+    const elements = document.querySelectorAll('.animate-on-scroll');
+    elements.forEach((el) => {
+      const rect = el.getBoundingClientRect();
+      const isVisible = rect.top < window.innerHeight * 0.85;
+      if (isVisible) {
+        el.classList.add('animate-visible');
+      }
+    });
+  };
+  
+  // Initial check
+  animateOnScroll();
+  
+  // On scroll
+  window.addEventListener('scroll', animateOnScroll, { passive: true });
+  
+  // Animate hero immediately
+  const heroContent = document.querySelector('.hero-content');
+  const heroStats = document.querySelector('.hero-stats');
+  if (heroContent) heroContent.classList.add('animate-visible');
+  setTimeout(() => {
+    if (heroStats) heroStats.classList.add('animate-visible');
+  }, 300);
+}
 
 const stats = [
   { value: "2,500+", label: "happy travelers" },
@@ -127,55 +206,66 @@ const steps = [
 </script>
 
 <template>
-  <div class="min-h-screen">
+  <div class="min-h-screen overflow-x-hidden">
     <!-- hero -->
-    <section class="relative flex min-h-screen items-end pb-20 pt-32">
+    <section class="relative flex min-h-[100svh] items-end pb-16 pt-24 sm:pb-20 sm:pt-32">
       <div class="absolute inset-0">
+        <!-- Default image (always renders immediately) -->
         <img
-          :src="heroImage"
+          :src="fallbackImages[0]"
           alt="budapest parliament at sunset"
-          class="h-full w-full object-cover"
+          class="h-full w-full object-cover transition-opacity duration-700"
+          :class="heroImageLoaded ? 'opacity-0' : 'opacity-100'"
+        />
+        <!-- Dynamic image (fades in when loaded) -->
+        <img
+          v-if="dynamicHeroImage"
+          :src="dynamicHeroImage"
+          alt="budapest parliament at sunset"
+          class="absolute inset-0 h-full w-full object-cover transition-opacity duration-700"
+          :class="heroImageLoaded ? 'opacity-100' : 'opacity-0'"
         />
         <div
           class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30"
         />
       </div>
 
-      <div class="container relative">
-        <div class="max-w-3xl">
-          <Badge variant="warning" class="mb-6 text-xs">
-            <StarIcon class="mr-1 size-3 fill-current" />
-            rated 4.9/5 by travelers
-          </Badge>
+      <div class="container relative z-10">
+        <div class="hero-content animate-on-scroll max-w-3xl opacity-0 translate-y-8 transition-all duration-700 ease-out">
+          <!-- Brush stroke badge -->
+          <div class="mb-6 inline-flex items-center gap-1.5 text-xs font-bold uppercase text-amber-300">
+            <span class="brush-stroke-badge">
+              <StarIcon class="size-3 fill-current inline-block mr-1" />
+              rated 4.9/5 by travelers
+            </span>
+          </div>
 
-          <h1
-            class="font-display text-5xl font-bold leading-[1.1] text-white md:text-6xl lg:text-7xl"
-          >
-            discover<br />
-            <span class="text-accent">budapest</span><br />
-            with locals
+          <h1 class="font-display text-4xl font-bold leading-[1.15] text-white sm:text-5xl md:text-6xl lg:text-7xl">
+            <span class="brush-stroke-text text-white">discover</span><br />
+            <span class="brush-stroke-accent">budapest</span><br />
+            <span class="brush-stroke-text text-white">with locals</span>
           </h1>
 
-          <p class="mt-6 max-w-lg text-lg text-white/80">
-            authentic experiences, hidden gems, unforgettable stories. 
-            join 2,500+ travelers who found the real budapest.
+          <p class="mt-6 max-w-lg text-base sm:text-lg leading-relaxed">
+            <span class="brush-stroke-line">authentic experiences, hidden gems, unforgettable stories.</span><br class="hidden sm:block" />
+            <span class="brush-stroke-line">join 2,500+ travelers who found the real budapest.</span>
           </p>
 
-          <div class="mt-10 flex flex-wrap items-center gap-4">
+          <div class="mt-8 flex flex-wrap items-center gap-3 sm:mt-10 sm:gap-4">
             <Button
               size="lg"
-              class="rounded-full bg-accent px-8 text-accent-foreground hover:bg-accent/90"
+              class="group rounded-full bg-accent px-6 text-accent-foreground transition-all duration-300 hover:bg-accent/90 hover:scale-105 hover:shadow-lg sm:px-8"
               as-child
             >
               <NuxtLink to="/tours" class="inline-flex items-center gap-2">
                 explore tours
-                <ArrowRightIcon class="size-4" />
+                <ArrowRightIcon class="size-4 transition-transform duration-300 group-hover:translate-x-1" />
               </NuxtLink>
             </Button>
             <Button
               variant="outline"
               size="lg"
-              class="rounded-full border-white/20 text-white hover:bg-white/10"
+              class="rounded-full border-white/30 bg-white/10 text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20 hover:scale-105"
               as-child
             >
               <NuxtLink to="/guides/signup">become a guide</NuxtLink>
@@ -185,189 +275,267 @@ const steps = [
 
         <!-- floating stats -->
         <div
-          class="mt-16 grid max-w-2xl grid-cols-4 gap-4 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl"
+          class="hero-stats animate-on-scroll mt-10 grid max-w-2xl grid-cols-2 gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl sm:mt-16 sm:grid-cols-4 sm:gap-4 sm:p-6 opacity-0 translate-y-8 transition-all duration-700 ease-out delay-300"
         >
           <div v-for="stat in stats" :key="stat.label" class="text-center">
-            <div class="text-2xl font-bold text-white md:text-3xl">
+            <div class="text-xl font-bold text-white sm:text-2xl md:text-3xl">
               {{ stat.value }}
             </div>
             <div class="mt-1 text-xs text-white/60">{{ stat.label }}</div>
           </div>
         </div>
+        
+        <!-- Unsplash photo credit -->
+        <div v-if="heroPhotoData" class="mt-4 flex items-center gap-2 text-xs text-white/50">
+          <span>Photo by</span>
+          <a 
+            :href="`${heroPhotoData.user.links.html}?utm_source=theguidegenie&utm_medium=referral`"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="underline hover:text-white/80 transition-colors"
+          >
+            {{ heroPhotoData.user.name }}
+          </a>
+          <span>on</span>
+          <a 
+            href="https://unsplash.com/?utm_source=theguidegenie&utm_medium=referral"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="underline hover:text-white/80 transition-colors"
+          >
+            Unsplash
+          </a>
+        </div>
+      </div>
+      
+      <!-- Wave divider -->
+      <div class="absolute -bottom-1 left-0 right-0 overflow-hidden">
+        <svg 
+          class="relative block w-full h-12 sm:h-16 md:h-24"
+          preserveAspectRatio="none"
+          viewBox="0 0 1200 120"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path 
+            d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
+            class="fill-background"
+          />
+        </svg>
       </div>
     </section>
 
     <!-- photo mosaic gallery -->
-    <section class="bg-background py-24">
+    <section class="bg-background py-16 sm:py-24">
       <div class="container">
-        <div class="mb-12 max-w-xl">
+        <div class="animate-on-scroll mb-8 max-w-xl opacity-0 translate-y-8 transition-all duration-700 ease-out sm:mb-12">
           <Badge variant="info" class="mb-4">
-            <MapPinIcon class="mr-1 size-3" />
+            <MapPinIcon class="size-3" />
             explore
           </Badge>
-          <h2 class="font-display text-3xl font-bold md:text-4xl">
+          <h2 class="font-display text-2xl font-bold sm:text-3xl md:text-4xl">
             moments waiting<br />
             <span class="text-muted-foreground">to be discovered</span>
           </h2>
         </div>
 
-        <!-- masonry-style gallery -->
-        <div v-if="galleryImages.length" class="grid gap-4 md:grid-cols-3">
-          <div class="space-y-4">
-            <Card
-              v-if="galleryImages[0]"
-              class="group overflow-hidden border-0 bg-transparent"
+        <!-- masonry-style gallery - ALWAYS show images -->
+        <div class="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3">
+          <div class="space-y-3 sm:space-y-4">
+            <div
+              class="animate-on-scroll gallery-item gallery-hover group relative rounded-xl sm:rounded-2xl aspect-[4/5] opacity-0 translate-y-8 transition-all duration-700 ease-out"
             >
-              <div class="relative aspect-[4/5] overflow-hidden rounded-2xl">
-                <img
-                  :src="galleryImages[0].src"
-                  :alt="galleryImages[0].alt"
-                  class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
+              <img
+                :src="galleryImages[0]?.src || fallbackImages[1]"
+                :alt="galleryImages[0]?.alt || 'budapest'"
+                class="h-full w-full object-cover"
+              />
+              <!-- Photo credit overlay -->
+              <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 sm:p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <a 
+                  :href="galleryImages[0]?.photographerUrl || 'https://unsplash.com'"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center gap-1 text-xs text-white/90 hover:text-white"
+                  @click.stop
+                >
+                  {{ galleryImages[0]?.photographer || 'Unsplash' }}
+                  <ExternalLinkIcon class="size-3" />
+                </a>
               </div>
-            </Card>
-            <Card
-              v-if="galleryImages[1]"
-              class="group overflow-hidden border-0 bg-transparent"
+            </div>
+            <div
+              class="animate-on-scroll gallery-item gallery-hover group relative rounded-xl sm:rounded-2xl aspect-[4/3] opacity-0 translate-y-8 transition-all duration-700 ease-out delay-100"
             >
-              <div class="relative aspect-[4/3] overflow-hidden rounded-2xl">
-                <img
-                  :src="galleryImages[1].src"
-                  :alt="galleryImages[1].alt"
-                  class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
+              <img
+                :src="galleryImages[1]?.src || fallbackImages[2]"
+                :alt="galleryImages[1]?.alt || 'budapest'"
+                class="h-full w-full object-cover"
+              />
+              <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 sm:p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <a 
+                  :href="galleryImages[1]?.photographerUrl || 'https://unsplash.com'"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center gap-1 text-xs text-white/90 hover:text-white"
+                  @click.stop
+                >
+                  {{ galleryImages[1]?.photographer || 'Unsplash' }}
+                  <ExternalLinkIcon class="size-3" />
+                </a>
               </div>
-            </Card>
+            </div>
           </div>
-          <div class="space-y-4 md:pt-12">
-            <Card
-              v-if="galleryImages[2]"
-              class="group overflow-hidden border-0 bg-transparent"
+          <div class="space-y-3 sm:space-y-4 md:pt-12">
+            <div
+              class="animate-on-scroll gallery-item group relative overflow-hidden rounded-xl sm:rounded-2xl aspect-square opacity-0 translate-y-8 transition-all duration-700 ease-out delay-150"
             >
-              <div class="relative aspect-square overflow-hidden rounded-2xl">
-                <img
-                  :src="galleryImages[2].src"
-                  :alt="galleryImages[2].alt"
-                  class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
+              <img
+                :src="galleryImages[2]?.src || fallbackImages[3]"
+                :alt="galleryImages[2]?.alt || 'budapest'"
+                class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 sm:p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <a 
+                  :href="galleryImages[2]?.photographerUrl || 'https://unsplash.com'"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center gap-1 text-xs text-white/90 hover:text-white"
+                  @click.stop
+                >
+                  {{ galleryImages[2]?.photographer || 'Unsplash' }}
+                  <ExternalLinkIcon class="size-3" />
+                </a>
               </div>
-            </Card>
-            <Card
-              v-if="galleryImages[3]"
-              class="group overflow-hidden border-0 bg-transparent"
+            </div>
+            <div
+              class="animate-on-scroll gallery-item group relative overflow-hidden rounded-xl sm:rounded-2xl aspect-[4/5] opacity-0 translate-y-8 transition-all duration-700 ease-out delay-200"
             >
-              <div class="relative aspect-[4/5] overflow-hidden rounded-2xl">
-                <img
-                  :src="galleryImages[3].src"
-                  :alt="galleryImages[3].alt"
-                  class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
+              <img
+                :src="galleryImages[3]?.src || fallbackImages[4]"
+                :alt="galleryImages[3]?.alt || 'budapest'"
+                class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 sm:p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <a 
+                  :href="galleryImages[3]?.photographerUrl || 'https://unsplash.com'"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center gap-1 text-xs text-white/90 hover:text-white"
+                  @click.stop
+                >
+                  {{ galleryImages[3]?.photographer || 'Unsplash' }}
+                  <ExternalLinkIcon class="size-3" />
+                </a>
               </div>
-            </Card>
+            </div>
           </div>
-          <div class="space-y-4">
-            <Card
-              v-if="galleryImages[4]"
-              class="group overflow-hidden border-0 bg-transparent"
+          <div class="hidden md:block space-y-3 sm:space-y-4">
+            <div
+              class="animate-on-scroll gallery-item group relative overflow-hidden rounded-xl sm:rounded-2xl aspect-[4/3] opacity-0 translate-y-8 transition-all duration-700 ease-out delay-250"
             >
-              <div class="relative aspect-[4/3] overflow-hidden rounded-2xl">
-                <img
-                  :src="galleryImages[4].src"
-                  :alt="galleryImages[4].alt"
-                  class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
+              <img
+                :src="galleryImages[4]?.src || fallbackImages[5]"
+                :alt="galleryImages[4]?.alt || 'budapest'"
+                class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 sm:p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <a 
+                  :href="galleryImages[4]?.photographerUrl || 'https://unsplash.com'"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center gap-1 text-xs text-white/90 hover:text-white"
+                  @click.stop
+                >
+                  {{ galleryImages[4]?.photographer || 'Unsplash' }}
+                  <ExternalLinkIcon class="size-3" />
+                </a>
               </div>
-            </Card>
-            <Card
-              v-if="galleryImages[5]"
-              class="group overflow-hidden border-0 bg-transparent"
+            </div>
+            <div
+              class="animate-on-scroll gallery-item group relative overflow-hidden rounded-xl sm:rounded-2xl aspect-[4/5] opacity-0 translate-y-8 transition-all duration-700 ease-out delay-300"
             >
-              <div class="relative aspect-[4/5] overflow-hidden rounded-2xl">
-                <img
-                  :src="galleryImages[5].src"
-                  :alt="galleryImages[5].alt"
-                  class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
+              <img
+                :src="galleryImages[5]?.src || fallbackImages[6]"
+                :alt="galleryImages[5]?.alt || 'budapest'"
+                class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 sm:p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <a 
+                  :href="galleryImages[5]?.photographerUrl || 'https://unsplash.com'"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center gap-1 text-xs text-white/90 hover:text-white"
+                  @click.stop
+                >
+                  {{ galleryImages[5]?.photographer || 'Unsplash' }}
+                  <ExternalLinkIcon class="size-3" />
+                </a>
               </div>
-            </Card>
-          </div>
-        </div>
-
-        <!-- loading skeleton -->
-        <div v-else class="grid gap-4 md:grid-cols-3">
-          <div class="space-y-4">
-            <Skeleton class="aspect-[4/5] rounded-2xl" />
-            <Skeleton class="aspect-[4/3] rounded-2xl" />
-          </div>
-          <div class="space-y-4 pt-12">
-            <Skeleton class="aspect-square rounded-2xl" />
-            <Skeleton class="aspect-[4/5] rounded-2xl" />
-          </div>
-          <div class="space-y-4">
-            <Skeleton class="aspect-[4/3] rounded-2xl" />
-            <Skeleton class="aspect-[4/5] rounded-2xl" />
+            </div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- how it works -->
-    <section class="border-y border-border bg-muted/30 py-24">
+    <section class="relative border-y border-border bg-muted/30 py-16 sm:py-24">
       <div class="container">
-        <div class="mb-16 text-center">
+        <div class="animate-on-scroll mb-12 text-center opacity-0 translate-y-8 transition-all duration-700 ease-out sm:mb-16">
           <Badge variant="info" class="mb-4">simple</Badge>
-          <h2 class="font-display text-3xl font-bold md:text-4xl">
+          <h2 class="font-display text-2xl font-bold sm:text-3xl md:text-4xl">
             book in 3 steps
           </h2>
         </div>
 
-        <div class="mx-auto grid max-w-4xl gap-8 md:grid-cols-3">
+        <div class="mx-auto grid max-w-4xl gap-6 sm:gap-8 grid-cols-1 sm:grid-cols-3">
           <div
             v-for="(step, i) in steps"
             :key="step.title"
-            class="relative text-center"
+            class="animate-on-scroll relative text-center opacity-0 translate-y-8 transition-all duration-700 ease-out"
+            :style="{ transitionDelay: `${i * 100}ms` }"
           >
             <!-- connector line -->
             <div
               v-if="i < steps.length - 1"
-              class="absolute left-[calc(50%+40px)] top-10 hidden h-px w-[calc(100%-80px)] bg-border md:block"
+              class="absolute left-[calc(50%+40px)] top-10 hidden h-px w-[calc(100%-80px)] bg-border sm:block"
             />
 
             <div
-              class="mx-auto flex size-20 items-center justify-center rounded-2xl bg-primary/10 text-primary"
+              class="mx-auto flex size-16 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-all duration-300 hover:scale-110 hover:bg-primary/20 sm:size-20"
             >
-              <component :is="step.icon" class="size-8" />
+              <component :is="step.icon" class="size-6 sm:size-8" />
             </div>
-            <h3 class="mt-6 text-lg font-semibold">{{ step.title }}</h3>
-            <p class="mt-2 text-sm text-muted-foreground">{{ step.desc }}</p>
+            <h3 class="mt-4 text-base font-semibold sm:mt-6 sm:text-lg">{{ step.title }}</h3>
+            <p class="mt-1 text-sm text-muted-foreground sm:mt-2">{{ step.desc }}</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- packages -->
-    <section class="py-24">
+    <section class="py-16 sm:py-24">
       <div class="container">
-        <div class="mb-12 flex items-end justify-between">
+        <div class="animate-on-scroll mb-8 flex flex-col gap-4 sm:mb-12 sm:flex-row sm:items-end sm:justify-between opacity-0 translate-y-8 transition-all duration-700 ease-out">
           <div>
             <Badge variant="info" class="mb-4">experiences</Badge>
-            <h2 class="font-display text-3xl font-bold md:text-4xl">
+            <h2 class="font-display text-2xl font-bold sm:text-3xl md:text-4xl">
               popular packages
             </h2>
           </div>
-          <Button variant="outline" class="hidden rounded-full md:flex" as-child>
+          <Button variant="outline" class="w-fit rounded-full transition-all duration-300 hover:scale-105" as-child>
             <NuxtLink to="/tours">view all tours</NuxtLink>
           </Button>
         </div>
 
-        <div class="grid gap-6 md:grid-cols-3">
+        <div class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <Card
-            v-for="pkg in packages"
+            v-for="(pkg, i) in packages"
             :key="pkg.name"
             :class="[
-              'relative overflow-hidden transition-all duration-300 hover:shadow-xl',
+              'animate-on-scroll package-card relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 opacity-0 translate-y-8',
               pkg.accent ? 'border-accent' : '',
             ]"
+            :style="{ transitionDelay: `${i * 100}ms` }"
           >
             <div
               v-if="pkg.accent"
@@ -376,7 +544,7 @@ const steps = [
               popular
             </div>
             <CardHeader>
-              <CardTitle class="text-xl font-semibold">{{ pkg.name }}</CardTitle>
+              <CardTitle class="text-lg font-semibold sm:text-xl">{{ pkg.name }}</CardTitle>
               <CardDescription class="flex items-center gap-2">
                 <ClockIcon class="size-4" />
                 {{ pkg.duration }}
@@ -384,14 +552,14 @@ const steps = [
             </CardHeader>
             <CardContent>
               <div class="flex items-baseline gap-1">
-                <span class="text-4xl font-bold">€{{ pkg.price }}</span>
+                <span class="text-3xl font-bold sm:text-4xl">€{{ pkg.price }}</span>
                 <span class="text-muted-foreground">/person</span>
               </div>
-              <ul class="mt-6 space-y-3">
+              <ul class="mt-4 space-y-2 sm:mt-6 sm:space-y-3">
                 <li
                   v-for="feature in pkg.features"
                   :key="feature"
-                  class="flex items-center gap-2.5 text-sm"
+                  class="flex items-center gap-2 text-sm"
                 >
                   <div
                     class="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10"
@@ -405,7 +573,7 @@ const steps = [
             <CardFooter>
               <Button
                 :variant="pkg.accent ? 'default' : 'outline'"
-                class="w-full"
+                class="w-full transition-all duration-300 hover:scale-[1.02]"
                 as-child
               >
                 <NuxtLink to="/tours">book now</NuxtLink>
@@ -417,48 +585,49 @@ const steps = [
     </section>
 
     <!-- featured tours -->
-    <section v-if="featuredTours.length" class="border-t border-border bg-muted/30 py-24">
+    <section v-if="featuredTours.length" class="border-t border-border bg-muted/30 py-16 sm:py-24">
       <div class="container">
-        <div class="mb-12 flex items-end justify-between">
+        <div class="animate-on-scroll mb-8 flex flex-col gap-4 sm:mb-12 sm:flex-row sm:items-end sm:justify-between opacity-0 translate-y-8 transition-all duration-700 ease-out">
           <div>
             <Badge variant="info" class="mb-4">featured</Badge>
-            <h2 class="font-display text-3xl font-bold md:text-4xl">
+            <h2 class="font-display text-2xl font-bold sm:text-3xl md:text-4xl">
               top-rated tours
             </h2>
           </div>
-          <Button variant="outline" class="rounded-full" as-child>
+          <Button variant="outline" class="w-fit rounded-full transition-all duration-300 hover:scale-105" as-child>
             <NuxtLink to="/tours">explore all</NuxtLink>
           </Button>
         </div>
 
-        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <Card
             v-for="(tour, idx) in featuredTours.slice(0, 3)"
             :key="tour.id"
-            class="group cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg"
+            class="animate-on-scroll tour-card group cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 opacity-0 translate-y-8"
+            :style="{ transitionDelay: `${idx * 100}ms` }"
             @click="navigateTo(`/tours/${tour.id}`)"
           >
             <div class="relative aspect-[16/10] overflow-hidden">
               <img
                 :src="
                   budapestPhotos?.[idx + 1]?.urls?.regular ||
-                  'https://images.unsplash.com/photo-1541849546-216549ae216d?w=600&q=80'
+                  fallbackImages[idx + 1]
                 "
                 :alt="tour.title"
                 class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
             </div>
-            <CardContent class="p-5">
+            <CardContent class="p-4 sm:p-5">
               <div class="flex items-center gap-2 text-xs text-muted-foreground">
                 <MapPinIcon class="size-3.5" />
                 {{ tour.guides?.city || "budapest" }}
               </div>
-              <h3 class="mt-2 font-semibold">{{ tour.title }}</h3>
-              <p class="mt-1.5 line-clamp-2 text-sm text-muted-foreground">
+              <h3 class="mt-2 font-semibold line-clamp-1">{{ tour.title }}</h3>
+              <p class="mt-1 line-clamp-2 text-sm text-muted-foreground">
                 {{ tour.description }}
               </p>
             </CardContent>
-            <CardFooter class="flex items-center justify-between border-t p-5 pt-4">
+            <CardFooter class="flex items-center justify-between border-t p-4 pt-3 sm:p-5 sm:pt-4">
               <span class="text-lg font-bold">
                 €{{ tour.base_price_cents ? (tour.base_price_cents / 100).toFixed(0) : "35" }}
               </span>
@@ -470,37 +639,37 @@ const steps = [
     </section>
 
     <!-- CTA -->
-    <section class="relative overflow-hidden py-32">
+    <section class="relative overflow-hidden py-20 sm:py-32">
       <div class="absolute inset-0">
         <img
-          :src="budapestPhotos?.[7]?.urls?.regular || heroImage"
+          :src="budapestPhotos?.[7]?.urls?.regular || fallbackImages[7]"
           alt="budapest"
           class="h-full w-full object-cover"
         />
         <div class="absolute inset-0 bg-primary/80" />
       </div>
       <div class="container relative text-center">
-        <h2 class="font-display text-4xl font-bold text-white md:text-5xl">
+        <h2 class="font-display text-3xl font-bold text-white sm:text-4xl md:text-5xl">
           ready to explore?
         </h2>
-        <p class="mx-auto mt-4 max-w-lg text-white/80">
+        <p class="mx-auto mt-4 max-w-lg text-sm text-white/80 sm:text-base">
           join thousands of travelers discovering the real budapest with passionate local guides
         </p>
-        <div class="mt-10 flex flex-wrap justify-center gap-4">
+        <div class="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-4">
           <Button
             size="lg"
-            class="rounded-full bg-white px-10 text-primary hover:bg-white/90"
+            class="group rounded-full bg-white px-8 text-primary transition-all duration-300 hover:bg-white/90 hover:scale-105 sm:px-10"
             as-child
           >
             <NuxtLink to="/tours" class="inline-flex items-center gap-2">
               book a tour
-              <ArrowRightIcon class="size-4" />
+              <ArrowRightIcon class="size-4 transition-transform duration-300 group-hover:translate-x-1" />
             </NuxtLink>
           </Button>
           <Button
             variant="outline"
             size="lg"
-            class="rounded-full border-white/30 text-white hover:bg-white/10"
+            class="rounded-full border-white/30 text-white transition-all duration-300 hover:bg-white/10 hover:scale-105"
             as-child
           >
             <NuxtLink to="/auth/tourist/signup">create account</NuxtLink>
@@ -510,3 +679,91 @@ const steps = [
     </section>
   </div>
 </template>
+
+<style scoped>
+/* Animation classes */
+.animate-on-scroll.animate-visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* Brush stroke highlight - bold designer aesthetic */
+.brush-stroke-badge {
+  position: relative;
+  display: inline-block;
+  padding: 0.4em 0.8em;
+  z-index: 1;
+}
+.brush-stroke-badge::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(245, 158, 11, 0.35); /* amber */
+  z-index: -1;
+  transform: skewX(-4deg) rotate(-1deg);
+  border-radius: 0.2em 0.8em 0.3em 0.6em;
+}
+
+.brush-stroke-text {
+  position: relative;
+  display: inline;
+  padding: 0 0.1em;
+  z-index: 1;
+}
+.brush-stroke-text::before {
+  content: '';
+  position: absolute;
+  left: -0.1em;
+  right: -0.1em;
+  top: 0.1em;
+  bottom: 0.05em;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: -1;
+  transform: skewX(-3deg) rotate(-0.5deg);
+  border-radius: 0.15em 0.5em 0.2em 0.4em;
+}
+
+.brush-stroke-accent {
+  position: relative;
+  display: inline;
+  padding: 0 0.15em;
+  color: hsl(var(--accent));
+  z-index: 1;
+}
+.brush-stroke-accent::before {
+  content: '';
+  position: absolute;
+  left: -0.15em;
+  right: -0.15em;
+  top: 0.05em;
+  bottom: 0;
+  background: hsl(var(--accent) / 0.35);
+  z-index: -1;
+  transform: skewX(-2deg) rotate(-0.8deg);
+  border-radius: 0.2em 0.6em 0.15em 0.5em;
+}
+
+.brush-stroke-line {
+  position: relative;
+  display: inline;
+  color: rgba(255, 255, 255, 0.9);
+  padding: 0.1em 0.3em;
+  z-index: 1;
+}
+.brush-stroke-line::before {
+  content: '';
+  position: absolute;
+  left: -0.1em;
+  right: -0.1em;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: -1;
+  transform: skewX(-1deg);
+  border-radius: 0.1em 0.3em 0.15em 0.25em;
+}
+</style>
+
