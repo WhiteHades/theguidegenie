@@ -273,12 +273,12 @@ const formatTime = (d) =>
       
       <!-- Owner Banner -->
       <div v-if="isOwner" class="bg-primary/10 border-b border-primary/20">
-        <div class="container py-3 flex items-center justify-between">
+        <div class="container py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div class="flex items-center gap-2 text-sm font-medium text-primary">
-            <CheckCircleIcon class="size-4" />
-            <span>This is your tour listing. Looks great!</span>
+            <CheckCircleIcon class="size-4 shrink-0" />
+            <span class="text-xs sm:text-sm">This is your tour listing</span>
           </div>
-          <Button variant="ghost" size="sm" class="h-8 text-xs hover:bg-primary/20" @click="navigateTo('/guides/dashboard')">
+          <Button variant="ghost" size="sm" class="h-8 text-xs hover:bg-primary/20 w-full sm:w-auto" @click="navigateTo('/guides/dashboard')">
             Manage in Dashboard
           </Button>
         </div>
@@ -350,10 +350,10 @@ const formatTime = (d) =>
 
               <div>
                 <h2 class="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">highlights</h2>
-                <div class="grid grid-cols-2 gap-2">
-                  <div v-for="h in defaultHighlights" :key="h.text" class="flex items-center gap-2 rounded-lg bg-muted/50 p-2.5 text-sm">
+                <div class="grid grid-cols-1 xs:grid-cols-2 gap-2">
+                  <div v-for="h in defaultHighlights" :key="h.text" class="flex items-center gap-2 rounded-lg bg-muted/50 p-2.5 text-xs sm:text-sm">
                     <component :is="h.icon" class="size-4 text-primary shrink-0" />
-                    <span>{{ h.text }}</span>
+                    <span class="truncate">{{ h.text }}</span>
                   </div>
                 </div>
               </div>
@@ -380,9 +380,9 @@ const formatTime = (d) =>
                   <div class="flex size-10 items-center justify-center rounded-full bg-primary/10">
                     <UserIcon class="size-5 text-primary" />
                   </div>
-                  <div class="flex-1 min-w-0">
-                    <h3 class="text-sm font-semibold">{{ tour.guides.name }}</h3>
-                    <p class="text-xs text-muted-foreground truncate">{{ tour.guides.bio || "passionate local guide" }}</p>
+                  <div class="flex-1 min-w-0 overflow-hidden">
+                    <h3 class="text-sm font-semibold truncate">{{ tour.guides.name }}</h3>
+                    <p class="text-xs text-muted-foreground truncate max-w-full">{{ tour.guides.bio || "passionate local guide" }}</p>
                   </div>
                   <ArrowLeftIcon class="size-4 text-muted-foreground rotate-180" />
                 </NuxtLink>
@@ -451,9 +451,9 @@ const formatTime = (d) =>
                 <div class="mt-4">
                   <h4 class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">meeting point</h4>
                   <div class="rounded-lg border border-border overflow-hidden">
-                    <div ref="mapContainer" class="h-56 bg-muted relative">
+                    <div ref="mapContainer" class="aspect-video min-h-[180px] max-h-56 bg-muted relative w-full">
                       <iframe
-                        class="h-full w-full border-0"
+                        class="absolute inset-0 h-full w-full border-0"
                         loading="lazy"
                         :src="`https://www.openstreetmap.org/export/embed.html?bbox=19.0,47.47,19.1,47.52&layer=mapnik&marker=47.5,19.05`"
                       />

@@ -274,7 +274,7 @@ const steps = [
       </div>
       
       <!-- Unsplash photo credit -->
-      <div v-if="heroPhotoData" class="absolute bottom-24 right-4 z-10 flex items-center gap-1.5 text-[10px] text-white/40 sm:bottom-28 sm:right-6">
+      <div v-if="heroPhotoData" class="absolute bottom-16 right-4 z-10 hidden items-center gap-1.5 text-[10px] text-white/40 sm:flex sm:bottom-20 md:bottom-28 md:right-6">
         <span>Photo by</span>
         <a 
           :href="`${heroPhotoData.user.links.html}?utm_source=theguidegenie&utm_medium=referral`"
