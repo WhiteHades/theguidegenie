@@ -109,6 +109,10 @@ const groupedSlots = computed(() => {
   return groups
 })
 
+const isOwner = computed(() => {
+  return user.value && tour.value?.guides && user.value.id === tour.value.guides.user_id
+})
+
 async function fetchTourDetails() {
   loading.value = true
   const params = route.params
@@ -223,7 +227,10 @@ async function submitBooking() {
   }
 }
 
-onMounted(fetchTourDetails)
+onMounted(() => {
+  window.scrollTo(0, 0)
+  fetchTourDetails()
+})
 
 useSeoMeta({
   title: () => tour.value?.title || "tour details",
@@ -258,38 +265,50 @@ const formatTime = (d) =>
     </div>
 
     <template v-else>
-      <section class="relative h-[25vh] min-h-[200px]">
+      <section class="relative h-[12vh] min-h-[100px]">
         <div class="absolute inset-0">
           <img :src="heroImage" :alt="tour.title" class="h-full w-full object-cover" />
           <div class="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
         </div>
-        <div class="container relative flex h-full items-end pb-4">
-          <button
-            @click="navigateTo('/tours')"
-            class="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full bg-black/30 px-3 py-1.5 text-xs text-white backdrop-blur-sm hover:bg-black/50 smooth"
-          >
-            <ArrowLeftIcon class="size-3" />
-            back
-          </button>
-        </div>
       </section>
+      
+      <!-- Owner Banner -->
+      <div v-if="isOwner" class="bg-primary/10 border-b border-primary/20">
+        <div class="container py-3 flex items-center justify-between">
+          <div class="flex items-center gap-2 text-sm font-medium text-primary">
+            <CheckCircleIcon class="size-4" />
+            <span>This is your tour listing. Looks great!</span>
+          </div>
+          <Button variant="ghost" size="sm" class="h-8 text-xs hover:bg-primary/20" @click="navigateTo('/guides/dashboard')">
+            Manage in Dashboard
+          </Button>
+        </div>
+      </div>
 
       <section class="border-b border-border bg-card">
-        <div class="container py-4">
-          <div class="flex flex-wrap items-start justify-between gap-4">
+        <div class="container py-3">
+          <!-- Back button row -->
+          <button
+            @click="navigateTo('/tours')"
+            class="mb-3 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm text-muted-foreground hover:text-foreground hover:bg-muted smooth"
+          >
+            <ArrowLeftIcon class="size-4" />
+            back to tours
+          </button>
+          
+          <div class="flex flex-wrap items-start justify-between gap-3">
             <div class="flex-1 min-w-0">
-              <div class="mb-2 flex flex-wrap items-center gap-2">
-                <Badge variant="info" class="text-xs">
-                  <component :is="categoryIcons[tour.category] || BadgeEuroIcon" class="mr-1 size-3" />
+              <h1 class="font-display text-xl font-bold md:text-2xl">{{ tour.title }}</h1>
+              <!-- All meta info in one line including category -->
+              <div class="mt-1.5 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                <span class="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                  <component :is="categoryIcons[tour.category] || BadgeEuroIcon" class="size-3" />
                   {{ tour.category || 'paid' }}
-                </Badge>
-                <Badge v-if="isFreeOrTipBased" variant="default" class="text-xs bg-accent text-accent-foreground">
-                  <HeartIcon class="mr-1 size-3" />
+                </span>
+                <span v-if="isFreeOrTipBased" class="inline-flex items-center gap-1 rounded-full bg-accent/20 px-2 py-0.5 text-xs font-medium text-accent-foreground">
+                  <HeartIcon class="size-3" />
                   tip-based
-                </Badge>
-              </div>
-              <h1 class="font-display text-2xl font-bold md:text-3xl">{{ tour.title }}</h1>
-              <div class="mt-2 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                </span>
                 <span class="flex items-center gap-1">
                   <MapPinIcon class="size-3.5" />
                   {{ tour.guides?.city || "budapest" }}
@@ -305,7 +324,7 @@ const formatTime = (d) =>
               </div>
             </div>
             <div class="text-right shrink-0">
-              <div class="text-2xl font-bold" :class="isFreeOrTipBased ? 'text-accent' : ''">
+              <div class="text-xl font-bold" :class="isFreeOrTipBased ? 'text-accent' : ''">
                 {{ priceDisplay.main }}
               </div>
               <div class="text-xs text-muted-foreground">{{ priceDisplay.sub }}</div>
@@ -314,10 +333,10 @@ const formatTime = (d) =>
         </div>
       </section>
 
-      <section class="py-6">
+      <section class="py-4">
         <div class="container">
-          <div class="grid gap-6 lg:grid-cols-5">
-            <div class="lg:col-span-3 space-y-6">
+          <div class="grid gap-4 lg:grid-cols-5">
+            <div class="lg:col-span-3 space-y-4">
               <div v-if="isFreeOrTipBased" class="flex items-center gap-3 rounded-lg border border-accent/30 bg-accent/10 p-3 text-sm">
                 <HeartIcon class="size-4 shrink-0 text-accent" />
                 <span><strong>free to book</strong> – tip your guide what you feel the experience was worth</span>
@@ -340,26 +359,15 @@ const formatTime = (d) =>
                 </div>
               </div>
 
+              <!-- Guide section moved here, map moved to sidebar -->
+              <!-- Meeting point text only -->
               <div>
-                <h2 class="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">meeting point</h2>
-                <div class="rounded-lg border border-border overflow-hidden">
-                  <div ref="mapContainer" class="h-40 bg-muted relative">
-                    <iframe
-                      v-if="tour.meeting_point"
-                      class="h-full w-full border-0"
-                      loading="lazy"
-                      :src="`https://www.openstreetmap.org/export/embed.html?bbox=19.0,47.47,19.1,47.52&layer=mapnik&marker=47.5,19.05`"
-                    />
-                    <div v-else class="absolute inset-0 flex items-center justify-center">
-                      <MapPinIcon class="size-6 text-muted-foreground/50" />
-                    </div>
-                  </div>
-                  <div class="p-3 bg-card flex items-start gap-2">
-                    <MapPinIcon class="size-4 shrink-0 text-primary mt-0.5" />
-                    <div>
-                      <p class="text-sm font-medium">{{ tour.meeting_point || "heroes' square (hősök tere)" }}</p>
-                      <p class="text-xs text-muted-foreground mt-0.5">look for the guide holding a red umbrella</p>
-                    </div>
+                <h2 class="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">meeting point</h2>
+                <div class="flex items-start gap-2 rounded-lg border border-border bg-card p-3">
+                  <MapPinIcon class="size-4 shrink-0 text-primary mt-0.5" />
+                  <div>
+                    <p class="text-sm font-medium">{{ tour.meeting_point || "heroes' square (hősök tere)" }}</p>
+                    <p class="text-xs text-muted-foreground mt-0.5">look for the guide holding a red umbrella</p>
                   </div>
                 </div>
               </div>
@@ -395,7 +403,7 @@ const formatTime = (d) =>
                   <p class="text-xs mt-1">check back soon!</p>
                 </div>
 
-                <ScrollArea v-else class="h-80">
+                <ScrollArea v-else class="h-48">
                   <div class="space-y-3 pr-3">
                     <div v-for="(slots, date) in groupedSlots" :key="date">
                       <div class="text-xs font-medium text-muted-foreground mb-1.5 sticky top-0 bg-card py-1">{{ date }}</div>
@@ -403,9 +411,13 @@ const formatTime = (d) =>
                         <button
                           v-for="slot in slots"
                           :key="slot.id"
-                          @click="selectSlot(slot)"
-                          class="w-full flex items-center justify-between rounded-lg border border-border p-2.5 text-left smooth hover:border-primary hover:bg-primary/5"
-                          :class="selectedSlot?.id === slot.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : ''"
+                          @click="!isOwner && selectSlot(slot)"
+                          class="w-full flex items-center justify-between rounded-lg border border-border p-2.5 text-left smooth"
+                          :class="[
+                             selectedSlot?.id === slot.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : '',
+                             isOwner ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary hover:bg-primary/5'
+                          ]"
+                          :disabled="isOwner"
                         >
                           <div class="flex items-center gap-2">
                             <ClockIcon class="size-3.5 text-muted-foreground" />
@@ -424,12 +436,31 @@ const formatTime = (d) =>
                 <Button 
                   v-if="timeSlots.length > 0"
                   @click="showBookingModal = true" 
-                  :disabled="!selectedSlot"
-                  class="mt-4 w-full btn-bounce" 
-                  size="lg"
+                  :disabled="!selectedSlot || isOwner"
+                  class="mt-3 w-full btn-bounce" 
+                  size="default"
                 >
-                  {{ isFreeOrTipBased ? 'reserve spot' : `book now – ${priceDisplay.main}` }}
+                  <template v-if="isOwner">
+                     You own this listing
+                  </template>
+                  <template v-else>
+                    {{ isFreeOrTipBased ? 'reserve spot' : `book now – ${priceDisplay.main}` }}
+                  </template>
                 </Button>
+
+                <!-- map -->
+                <div class="mt-4">
+                  <h4 class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">meeting point</h4>
+                  <div class="rounded-lg border border-border overflow-hidden">
+                    <div ref="mapContainer" class="h-56 bg-muted relative">
+                      <iframe
+                        class="h-full w-full border-0"
+                        loading="lazy"
+                        :src="`https://www.openstreetmap.org/export/embed.html?bbox=19.0,47.47,19.1,47.52&layer=mapnik&marker=47.5,19.05`"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
