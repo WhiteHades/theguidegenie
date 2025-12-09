@@ -207,23 +207,13 @@ const steps = [
 
 <template>
   <div class="min-h-screen overflow-x-hidden">
-    <!-- hero -->
-    <section class="relative flex min-h-[100svh] items-end pb-16 pt-24 sm:pb-20 sm:pt-32">
-      <div class="absolute inset-0">
-        <!-- Default image (always renders immediately) -->
+    <!-- hero - uses contain-layout to prevent reflow when text animates -->
+    <section class="relative flex min-h-[100svh] items-end pb-12 pt-24 sm:pb-20 sm:pt-32" style="contain: layout;">
+      <div class="absolute inset-0 overflow-hidden" style="contain: strict; will-change: transform;">
         <img
           :src="fallbackImages[0]"
           alt="budapest parliament at sunset"
-          class="h-full w-full object-cover transition-opacity duration-700"
-          :class="heroImageLoaded ? 'opacity-0' : 'opacity-100'"
-        />
-        <!-- Dynamic image (fades in when loaded) -->
-        <img
-          v-if="dynamicHeroImage"
-          :src="dynamicHeroImage"
-          alt="budapest parliament at sunset"
-          class="absolute inset-0 h-full w-full object-cover transition-opacity duration-700"
-          :class="heroImageLoaded ? 'opacity-100' : 'opacity-0'"
+          class="h-full w-full object-cover transform-gpu"
         />
         <div
           class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30"
@@ -231,24 +221,41 @@ const steps = [
       </div>
 
       <div class="container relative z-10">
-        <div class="hero-content animate-on-scroll max-w-3xl opacity-0 translate-y-8 transition-all duration-700 ease-out">
-          <!-- Brush stroke badge -->
-          <div class="mb-6 inline-flex items-center gap-1.5 text-xs font-bold uppercase text-amber-300">
-            <span class="brush-stroke-badge">
-              <StarIcon class="size-3 fill-current inline-block mr-1" />
-              rated 4.9/5 by travelers
+        <div class="hero-content max-w-3xl">
+          <div class="mb-6 inline-flex items-center gap-1.5 text-xs font-bold uppercase text-amber-950">
+            <span class="relative px-3 py-1.5">
+              <span class="relative z-10 flex items-center gap-1.5">
+                <StarIcon class="size-3 fill-current" />
+                rated 4.9/5 by travelers
+              </span>
+              <span class="absolute inset-0 z-0 bg-amber-400 brush-edge-box transform -skew-x-3 rotate-1 scale-105"></span>
             </span>
           </div>
 
-          <h1 class="font-display text-4xl font-bold leading-[1.15] text-white sm:text-5xl md:text-6xl lg:text-7xl">
-            <span class="brush-stroke-text text-white">discover</span><br />
-            <span class="brush-stroke-accent">budapest</span><br />
-            <span class="brush-stroke-text text-white">with locals</span>
+          <h1 class="font-display text-4xl font-bold leading-[1.3] text-white sm:text-5xl md:text-6xl lg:text-7xl">
+            <span class="relative inline-block px-2">
+              <span class="relative z-10">discover</span>
+              <span class="absolute inset-0 z-0 bg-black/80 brush-edge-box transform -skew-x-2 -rotate-1 scale-110"></span>
+            </span><br />
+            <span class="relative inline-block px-2 mt-2">
+              <span class="relative z-10 text-accent">budapest</span>
+              <span class="absolute inset-0 z-0 bg-black brush-edge-box transform -skew-x-3 rotate-1 scale-110 shadow-xl"></span>
+            </span><br />
+            <span class="relative inline-block px-2 mt-1">
+              <span class="relative z-10">with locals</span>
+              <span class="absolute inset-0 z-0 bg-black/80 brush-edge-box transform -skew-x-1 -rotate-0.5 scale-105"></span>
+            </span>
           </h1>
 
-          <p class="mt-6 max-w-lg text-base sm:text-lg leading-relaxed">
-            <span class="brush-stroke-line">authentic experiences, hidden gems, unforgettable stories.</span><br class="hidden sm:block" />
-            <span class="brush-stroke-line">join 2,500+ travelers who found the real budapest.</span>
+          <p class="mt-8 max-w-lg text-base sm:text-lg leading-loose font-medium text-white">
+            <span class="relative inline-block px-2 py-1 my-1 box-decoration-clone">
+              <span class="relative z-10">authentic experiences, hidden gems, unforgettable stories.</span>
+              <span class="absolute inset-x-0 top-0 bottom-0 z-0 bg-black/60 brush-edge-box transform -skew-x-1 scale-y-110"></span>
+            </span><br class="hidden sm:block" />
+            <span class="relative inline-block px-2 py-1 my-1 box-decoration-clone delay-100">
+               <span class="relative z-10">join 2,500+ travelers who found the real budapest.</span>
+               <span class="absolute inset-x-0 top-0 bottom-0 z-0 bg-black/60 brush-edge-box transform skew-x-1 scale-y-110"></span>
+            </span>
           </p>
 
           <div class="mt-8 flex flex-wrap items-center gap-3 sm:mt-10 sm:gap-4">
@@ -275,7 +282,7 @@ const steps = [
 
         <!-- floating stats -->
         <div
-          class="hero-stats animate-on-scroll mt-10 grid max-w-2xl grid-cols-2 gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl sm:mt-16 sm:grid-cols-4 sm:gap-4 sm:p-6 opacity-0 translate-y-8 transition-all duration-700 ease-out delay-300"
+          class="hero-stats mt-10 grid max-w-2xl grid-cols-2 gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl sm:mt-16 sm:grid-cols-4 sm:gap-4 sm:p-6"
         >
           <div v-for="stat in stats" :key="stat.label" class="text-center">
             <div class="text-xl font-bold text-white sm:text-2xl md:text-3xl">
@@ -325,7 +332,7 @@ const steps = [
     </section>
 
     <!-- photo mosaic gallery -->
-    <section class="bg-background py-16 sm:py-24">
+    <section class="bg-background py-10 sm:py-20">
       <div class="container">
         <div class="animate-on-scroll mb-8 max-w-xl opacity-0 translate-y-8 transition-all duration-700 ease-out sm:mb-12">
           <Badge variant="info" class="mb-4">
@@ -478,7 +485,7 @@ const steps = [
     </section>
 
     <!-- how it works -->
-    <section class="relative border-y border-border bg-muted/30 py-16 sm:py-24">
+    <section class="relative border-y border-border bg-muted/30 py-10 sm:py-20">
       <div class="container">
         <div class="animate-on-scroll mb-12 text-center opacity-0 translate-y-8 transition-all duration-700 ease-out sm:mb-16">
           <Badge variant="info" class="mb-4">simple</Badge>
@@ -487,33 +494,49 @@ const steps = [
           </h2>
         </div>
 
-        <div class="mx-auto grid max-w-4xl gap-6 sm:gap-8 grid-cols-1 sm:grid-cols-3">
-          <div
-            v-for="(step, i) in steps"
-            :key="step.title"
-            class="animate-on-scroll relative text-center opacity-0 translate-y-8 transition-all duration-700 ease-out"
-            :style="{ transitionDelay: `${i * 100}ms` }"
-          >
-            <!-- connector line -->
-            <div
-              v-if="i < steps.length - 1"
-              class="absolute left-[calc(50%+40px)] top-10 hidden h-px w-[calc(100%-80px)] bg-border sm:block"
-            />
-
-            <div
-              class="mx-auto flex size-16 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-all duration-300 hover:scale-110 hover:bg-primary/20 sm:size-20"
-            >
-              <component :is="step.icon" class="size-6 sm:size-8" />
+        <div class="mx-auto flex max-w-4xl flex-col gap-8 sm:flex-row sm:items-start sm:gap-4">
+          <!-- Step 1 -->
+          <div class="animate-on-scroll relative z-10 flex flex-1 flex-col items-center text-center opacity-0 translate-y-8 transition-all duration-700 ease-out">
+            <div class="mx-auto flex size-16 items-center justify-center rounded-2xl bg-card border border-border text-primary transition-all duration-300 hover:scale-110 hover:bg-primary/10 sm:size-20 shadow-sm">
+              <component :is="steps[0].icon" class="size-6 sm:size-8" />
             </div>
-            <h3 class="mt-4 text-base font-semibold sm:mt-6 sm:text-lg">{{ step.title }}</h3>
-            <p class="mt-1 text-sm text-muted-foreground sm:mt-2">{{ step.desc }}</p>
+            <h3 class="mt-4 text-base font-semibold sm:mt-6 sm:text-lg">{{ steps[0].title }}</h3>
+            <p class="mt-1 text-sm text-muted-foreground sm:mt-2 max-w-[200px]">{{ steps[0].desc }}</p>
+          </div>
+
+          <!-- Connector 1 -->
+          <div class="hidden pt-10 sm:block sm:flex-1">
+            <div class="h-px w-full bg-border"></div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="animate-on-scroll relative z-10 flex flex-1 flex-col items-center text-center opacity-0 translate-y-8 transition-all duration-700 ease-out delay-100">
+            <div class="mx-auto flex size-16 items-center justify-center rounded-2xl bg-card border border-border text-primary transition-all duration-300 hover:scale-110 hover:bg-primary/10 sm:size-20 shadow-sm">
+              <component :is="steps[1].icon" class="size-6 sm:size-8" />
+            </div>
+            <h3 class="mt-4 text-base font-semibold sm:mt-6 sm:text-lg">{{ steps[1].title }}</h3>
+            <p class="mt-1 text-sm text-muted-foreground sm:mt-2 max-w-[200px]">{{ steps[1].desc }}</p>
+          </div>
+
+          <!-- Connector 2 -->
+          <div class="hidden pt-10 sm:block sm:flex-1">
+            <div class="h-px w-full bg-border"></div>
+          </div>
+
+          <!-- Step 3 -->
+           <div class="animate-on-scroll relative z-10 flex flex-1 flex-col items-center text-center opacity-0 translate-y-8 transition-all duration-700 ease-out delay-200">
+            <div class="mx-auto flex size-16 items-center justify-center rounded-2xl bg-card border border-border text-primary transition-all duration-300 hover:scale-110 hover:bg-primary/10 sm:size-20 shadow-sm">
+              <component :is="steps[2].icon" class="size-6 sm:size-8" />
+            </div>
+            <h3 class="mt-4 text-base font-semibold sm:mt-6 sm:text-lg">{{ steps[2].title }}</h3>
+            <p class="mt-1 text-sm text-muted-foreground sm:mt-2 max-w-[200px]">{{ steps[2].desc }}</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- packages -->
-    <section class="py-16 sm:py-24">
+    <section class="py-10 sm:py-20">
       <div class="container">
         <div class="animate-on-scroll mb-8 flex flex-col gap-4 sm:mb-12 sm:flex-row sm:items-end sm:justify-between opacity-0 translate-y-8 transition-all duration-700 ease-out">
           <div>
@@ -585,7 +608,7 @@ const steps = [
     </section>
 
     <!-- featured tours -->
-    <section v-if="featuredTours.length" class="border-t border-border bg-muted/30 py-16 sm:py-24">
+    <section v-if="featuredTours.length" class="border-t border-border bg-muted/30 py-10 sm:py-20">
       <div class="container">
         <div class="animate-on-scroll mb-8 flex flex-col gap-4 sm:mb-12 sm:flex-row sm:items-end sm:justify-between opacity-0 translate-y-8 transition-all duration-700 ease-out">
           <div>
@@ -610,8 +633,8 @@ const steps = [
             <div class="relative aspect-[16/10] overflow-hidden">
               <img
                 :src="
-                  budapestPhotos?.[idx + 1]?.urls?.regular ||
-                  fallbackImages[idx + 1]
+                  budapestPhotos?.[idx + 4]?.urls?.regular ||
+                  fallbackImages[idx + 4]
                 "
                 :alt="tour.title"
                 class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -639,14 +662,14 @@ const steps = [
     </section>
 
     <!-- CTA -->
-    <section class="relative overflow-hidden py-20 sm:py-32">
+    <section class="relative overflow-hidden py-16 sm:py-28">
       <div class="absolute inset-0">
         <img
           :src="budapestPhotos?.[7]?.urls?.regular || fallbackImages[7]"
-          alt="budapest"
+          :alt="budapestPhotos?.[7]?.alt_description || 'budapest'"
           class="h-full w-full object-cover"
         />
-        <div class="absolute inset-0 bg-primary/80" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-black/50" />
       </div>
       <div class="container relative text-center">
         <h2 class="font-display text-3xl font-bold text-white sm:text-4xl md:text-5xl">
@@ -681,89 +704,32 @@ const steps = [
 </template>
 
 <style scoped>
-/* Animation classes */
 .animate-on-scroll.animate-visible {
   opacity: 1 !important;
   transform: translateY(0) !important;
 }
 
-/* Brush stroke highlight - bold designer aesthetic */
-.brush-stroke-badge {
-  position: relative;
-  display: inline-block;
-  padding: 0.4em 0.8em;
-  z-index: 1;
-}
-.brush-stroke-badge::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  background: rgba(245, 158, 11, 0.35); /* amber */
-  z-index: -1;
-  transform: skewX(-4deg) rotate(-1deg);
-  border-radius: 0.2em 0.8em 0.3em 0.6em;
+.hero-content,
+.hero-stats {
+  transition-property: opacity, transform !important;
+  transition-duration: 0.7s !important;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-.brush-stroke-text {
-  position: relative;
-  display: inline;
-  padding: 0 0.1em;
-  z-index: 1;
-}
-.brush-stroke-text::before {
-  content: '';
-  position: absolute;
-  left: -0.1em;
-  right: -0.1em;
-  top: 0.1em;
-  bottom: 0.05em;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: -1;
-  transform: skewX(-3deg) rotate(-0.5deg);
-  border-radius: 0.15em 0.5em 0.2em 0.4em;
+.brush-edge-box {
+  clip-path: polygon(
+    2% 0%, 15% 2%, 25% 0%, 35% 2%, 45% 0%, 55% 2%, 65% 0%, 75% 2%, 85% 0%, 95% 2%, 100% 0%,
+    98% 15%, 100% 25%, 98% 35%, 100% 45%, 98% 55%, 100% 65%, 98% 75%, 100% 85%, 98% 95%, 100% 100%,
+    85% 98%, 75% 100%, 65% 98%, 55% 100%, 45% 98%, 35% 100%, 25% 98%, 15% 100%, 2% 98%, 0% 100%,
+    2% 85%, 0% 75%, 2% 65%, 0% 55%, 2% 45%, 0% 35%, 2% 25%, 0% 15%
+  );
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
-.brush-stroke-accent {
-  position: relative;
-  display: inline;
-  padding: 0 0.15em;
-  color: hsl(var(--accent));
-  z-index: 1;
-}
-.brush-stroke-accent::before {
-  content: '';
-  position: absolute;
-  left: -0.15em;
-  right: -0.15em;
-  top: 0.05em;
-  bottom: 0;
-  background: hsl(var(--accent) / 0.35);
-  z-index: -1;
-  transform: skewX(-2deg) rotate(-0.8deg);
-  border-radius: 0.2em 0.6em 0.15em 0.5em;
-}
-
-.brush-stroke-line {
-  position: relative;
-  display: inline;
-  color: rgba(255, 255, 255, 0.9);
-  padding: 0.1em 0.3em;
-  z-index: 1;
-}
-.brush-stroke-line::before {
-  content: '';
-  position: absolute;
-  left: -0.1em;
-  right: -0.1em;
-  top: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.45);
-  z-index: -1;
-  transform: skewX(-1deg);
-  border-radius: 0.1em 0.3em 0.15em 0.25em;
+.font-display, p {
+  will-change: auto;
+  -webkit-font-smoothing: antialiased;
+  backface-visibility: hidden;
 }
 </style>
-
