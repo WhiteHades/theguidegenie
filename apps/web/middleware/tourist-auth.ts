@@ -5,7 +5,18 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
     // wait for auth to initialize on client
     if (import.meta.client && !initialized.value) {
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise<void>(resolve => {
+            const unwatch = watch(initialized, (val) => {
+                if (val) {
+                    unwatch()
+                    resolve()
+                }
+            }, { immediate: true })
+            setTimeout(() => {
+                unwatch()
+                resolve()
+            }, 5000)
+        })
     }
 
     if (!user.value) {

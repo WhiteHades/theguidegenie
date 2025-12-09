@@ -3,10 +3,20 @@
 export default defineNuxtRouteMiddleware(async (to, from) => {
     const { user, guideProfile, checkIsGuide, initialized, loading } = useAuth()
 
-    // wait for auth to initialize on client
+    // wait for auth to initialize on client - properly await with watcher
     if (import.meta.client && !initialized.value) {
-        // give it a moment to load
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise<void>(resolve => {
+            const unwatch = watch(initialized, (val) => {
+                if (val) {
+                    unwatch()
+                    resolve()
+                }
+            }, { immediate: true })
+            setTimeout(() => {
+                unwatch()
+                resolve()
+            }, 5000)
+        })
     }
 
     // not logged in - redirect to guide login
