@@ -8,15 +8,7 @@
     ? ref(0)
     : useWindowScroll().y;
 
-  // guard useAuth for ssr to avoid crashing the first render
-  const user = (() => {
-    try {
-      return useAuth().user;
-    } catch (err) {
-      console.error("[navbar] auth unavailable during ssr", err);
-      return ref(null);
-    }
-  })();
+  const { user } = useAuth();
 
   const isTop = computed(() => verticalScrollPosition.value < 10);
 
@@ -42,10 +34,25 @@
     colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark';
   }
 
-  const menuItems = [
-    { label: "tours", to: "/tours" },
-    { label: "become a guide", to: "/guides/signup" },
-  ];
+  const menuItems = computed(() => {
+    if (!user.value) {
+      return [
+        { label: "tours", to: "/tours" },
+        { label: "become a guide", to: "/guides/signup" },
+      ];
+    }
+    
+    if (user.value.user_type === 'guide') {
+      return [
+        { label: "dashboard", to: "/guides/dashboard" },
+        { label: "my tours", to: "/guides/tours" },
+      ];
+    }
+    
+    return [
+       { label: "browse tours", to: "/tours" },
+    ];
+  });
 </script>
 
 <template>
@@ -118,37 +125,31 @@
         </button>
 
         <!-- desktop auth buttons -->
-        <template v-if="user">
-          <Button
-            class="hidden md:flex rounded-full px-4"
-            size="sm"
-            :variant="isTop ? 'secondary' : 'default'"
-            :class="isTop && 'bg-white/20 text-white hover:bg-white/30 border-0'"
-            asChild
-          >
-            <NuxtLink :to="dashboardLink">dashboard</NuxtLink>
-          </Button>
-        </template>
-        <template v-else>
-          <Button
-            class="hidden md:flex rounded-full px-4"
-            size="sm"
-            variant="ghost"
-            :class="isTop ? 'text-white hover:bg-white/10' : ''"
-            asChild
-          >
-            <NuxtLink to="/auth/tourist/login">login</NuxtLink>
-          </Button>
-          <Button
-            class="hidden md:flex rounded-full px-4"
-            size="sm"
-            :variant="isTop ? 'secondary' : 'default'"
-            :class="isTop && 'bg-white text-primary hover:bg-white/90 border-0'"
-            @click="authDialogOpen = true"
-          >
-            sign up
-          </Button>
-        </template>
+        <ClientOnly>
+          <template v-if="user">
+            <UserMenuDropdown />
+          </template>
+          <template v-else>
+            <Button
+              class="hidden md:flex rounded-full px-4"
+              size="sm"
+              variant="ghost"
+              :class="isTop ? 'text-white hover:bg-white/10' : ''"
+              asChild
+            >
+              <NuxtLink to="/auth/tourist/login">login</NuxtLink>
+            </Button>
+            <Button
+              class="hidden md:flex rounded-full px-4"
+              size="sm"
+              :variant="isTop ? 'secondary' : 'default'"
+              :class="isTop && 'bg-white text-primary hover:bg-white/90 border-0'"
+              @click="authDialogOpen = true"
+            >
+              sign up
+            </Button>
+          </template>
+        </ClientOnly>
       </div>
     </div>
     
