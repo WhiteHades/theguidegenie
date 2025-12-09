@@ -96,11 +96,18 @@ export default defineNuxtConfig({
               } else {
                 document.documentElement.classList.add('dark');
               }
-              document.addEventListener('DOMContentLoaded', function() {
+              function showBody() {
                 requestAnimationFrame(function() {
-                  document.body.classList.add('ready');
+                  requestAnimationFrame(function() {
+                    document.body.classList.add('ready');
+                  });
                 });
-              });
+              }
+              if (document.readyState === 'complete') {
+                showBody();
+              } else {
+                window.addEventListener('load', showBody);
+              }
             })();
           `,
         },

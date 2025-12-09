@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @layer base {
   * {
     @apply border-border;
@@ -24,16 +28,19 @@
     color-scheme: light;
   }
 
-  /* smooth color mode transition */
   html,
   html *,
   html *::before,
   html *::after {
-    transition: background-color 0.3s ease, border-color 0.3s ease,
-      color 0.15s ease;
+    transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+    transition-duration: 0.3s;
+    transition-timing-function: ease;
+  }
+  
+  html.theme-transitioning * {
+    transition-property: background-color, border-color, color, fill, stroke, box-shadow !important;
   }
 
-  /* disable transition on page load */
   html.no-transition,
   html.no-transition *,
   html.no-transition *::before,
@@ -54,7 +61,6 @@
 }
 
 @layer utilities {
-  /* animation fill modes */
   .fill-mode-forwards {
     animation-fill-mode: forwards;
   }
@@ -65,7 +71,6 @@
     animation-fill-mode: both;
   }
 
-  /* scrollbar */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -74,7 +79,6 @@
     scrollbar-width: none;
   }
 
-  /* typography */
   .small-caps {
     font-variant: small-caps;
     letter-spacing: 0.05em;
@@ -83,7 +87,6 @@
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
   }
 
-  /* glassmorphism */
   .glass {
     @apply backdrop-blur-md bg-white/10 dark:bg-black/10 border border-white/20;
   }
@@ -91,7 +94,6 @@
     @apply backdrop-blur-xl bg-white/5 border border-white/10 shadow-lg;
   }
 
-  /* hover effects */
   .hover-lift {
     @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-xl;
   }
@@ -102,7 +104,6 @@
     @apply transition-shadow duration-300 hover:shadow-[0_0_20px_-5px_var(--colors-primary)];
   }
 
-  /* smooth transitions */
   .smooth {
     @apply transition-all duration-300 ease-out;
   }
@@ -110,7 +111,6 @@
     @apply transition-all duration-150 ease-out;
   }
 
-  /* bouncy button - spring physics feel */
   .btn-bounce {
     @apply transition-all duration-200;
   }
@@ -121,7 +121,6 @@
     transform: translateY(0) scale(0.98);
   }
 
-  /* glow effects */
   .glow {
     box-shadow: 0 0 20px -5px var(--colors-primary);
   }
@@ -132,12 +131,26 @@
     box-shadow: 0 0 20px -5px var(--colors-accent);
   }
 
-  /* card hover */
   .card-hover {
     @apply transition-all duration-300 ease-out;
   }
   .card-hover:hover {
     @apply border-primary/30 shadow-lg -translate-y-1;
+  }
+
+  :is(.dark) .package-card,
+  :is(.dark) .tour-card {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  :is(.dark) .package-card:hover,
+  :is(.dark) .tour-card:hover {
+    box-shadow: 0 0 30px -5px hsl(var(--accent) / 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+  
+  .package-card,
+  .tour-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
 
   .brush-highlight {
@@ -182,7 +195,6 @@
     border-radius: 0.2em 0.5em 0.15em 0.4em;
   }
 
-  /* Gallery image smooth hover */
   .gallery-hover {
     overflow: hidden;
   }
@@ -194,7 +206,3 @@
     transform: scale(1.05);
   }
 }
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
