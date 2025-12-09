@@ -20,11 +20,13 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "dependencies": {
+    "@internationalized/date": "^3.10.0",
     "@trpc/client": "^11.0.0",
     "@trpc/server": "^11.0.0",
     "@vercel/analytics": "^1.6.1",
     "eslint": "8.57.0",
     "eslint-config-custom": "workspace:*",
+    "reka-ui": "^2.6.1",
     "turbo": "^2.6.0"
   },
   "devDependencies": {
