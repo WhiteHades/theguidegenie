@@ -6,6 +6,7 @@ import {
   ArrowRightIcon,
   CompassIcon,
   CheckIcon,
+  ArrowLeftIcon,
 } from "lucide-vue-next";
 import { z } from "zod";
 import { toast } from "@/modules/ui/components/toast";
@@ -69,6 +70,10 @@ const perks = [
 
 <template>
   <div class="space-y-6">
+    <NuxtLink to="/" class="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground smooth">
+      <ArrowLeftIcon class="size-3" /> back
+    </NuxtLink>
+
     <div class="space-y-2 text-center">
       <Badge variant="info" class="inline-flex items-center gap-1.5">
         <CompassIcon class="size-3" />

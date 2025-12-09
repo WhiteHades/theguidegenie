@@ -22,7 +22,9 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
         const isGuide = await checkIsGuide()
         if (!isGuide) {
             // logged in but no guide profile - redirect to onboarding
-            return navigateTo('/guides/onboarding', { replace: true })
+            if (to.path !== '/guides/onboarding') {
+                return navigateTo('/guides/onboarding', { replace: true })
+            }
         }
     }
 })

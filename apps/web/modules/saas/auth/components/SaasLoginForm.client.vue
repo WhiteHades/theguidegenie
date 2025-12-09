@@ -38,7 +38,9 @@
   });
 
   const handleRedirect = () => {
-    navigateTo(localePath(redirectTo.value));
+    const userRole = user.value?.user_type;
+    const target = userRole === 'guide' ? '/guides/dashboard' : (redirectToParam.value || runtimeConfig.public.auth.redirectPath);
+    navigateTo(localePath(target));
   };
 
   // Redirect if user is already logged in

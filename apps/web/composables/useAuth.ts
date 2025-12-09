@@ -198,24 +198,41 @@ export function useAuth() {
           name: name.trim(),
           user_type: userType,
         },
-        emailRedirectTo: `${window.location.origin}${redirectPath}`,
+        emailRedirectTo: `${window.location.origin}/auth/verified`,
       },
     })
 
     if (error) {
-      if (error.message.includes('already registered')) {
-        throw new Error('this email is already registered - try signing in')
+      if (
+        error.message.includes('already registered') || 
+        error.message.includes('User already exists') ||
+        error.status === 422
+      ) {
+        throw new Error('this email is already registered. please log in instead.')
       }
       throw new Error(error.message)
     }
 
     if (!data.user) throw new Error('signup failed - please try again')
 
-    // wait for trigger to create user record
-    await new Promise(resolve => setTimeout(resolve, 800))
-
-    const authUser = await fetchUser()
-    if (!authUser) throw new Error('account created but failed to load profile')
+    // wait for db trigger to create user record with retry
+    let authUser: AuthUser | null = null
+    for (let i = 0; i < 5; i++) {
+      await new Promise(resolve => setTimeout(resolve, 500))
+      authUser = await fetchUser()
+      if (authUser) break
+    }
+    
+    if (!authUser) {
+      // db trigger might be slow, but auth user is created. return basic structure.
+      return {
+        id: data.user.id,
+        email: data.user.email!,
+        user_type: options.userType || 'tourist',
+        name: options.name,
+        phone: null,
+      }
+    }
 
     return authUser
   }
