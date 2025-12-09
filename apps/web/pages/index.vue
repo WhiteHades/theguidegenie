@@ -162,29 +162,6 @@ const stats = [
   { value: "30+", label: "local guides" },
 ];
 
-const packages = [
-  {
-    name: "walking tour",
-    price: 35,
-    duration: "3 hours",
-    features: ["local expert guide", "hidden gems & stories", "small groups max 12"],
-    accent: false,
-  },
-  {
-    name: "food & wine",
-    price: 65,
-    duration: "4 hours",
-    features: ["5 authentic tastings", "wine pairing included", "market visit"],
-    accent: true,
-  },
-  {
-    name: "night experience",
-    price: 45,
-    duration: "2.5 hours",
-    features: ["famous ruin bars", "city lights tour", "welcome drink"],
-    accent: false,
-  },
-];
 
 const steps = [
   {
@@ -207,13 +184,16 @@ const steps = [
 
 <template>
   <div class="min-h-screen overflow-x-hidden">
-    <!-- hero - uses contain-layout to prevent reflow when text animates -->
-    <section class="relative flex min-h-[100svh] items-end pb-12 pt-24 sm:pb-20 sm:pt-32" style="contain: layout;">
-      <div class="absolute inset-0 overflow-hidden" style="contain: strict; will-change: transform;">
+    <!-- Hero -->
+    <section class="relative flex h-screen min-h-[600px] items-center pt-20">
+      <div class="absolute inset-0 overflow-hidden">
         <img
-          :src="fallbackImages[0]"
+          :src="heroImage"
           alt="budapest parliament at sunset"
-          class="h-full w-full object-cover transform-gpu"
+          class="h-full w-full object-cover transition-opacity duration-1000 ease-out"
+          :class="heroImageLoaded ? 'opacity-100' : 'opacity-0'"
+          loading="eager"
+          fetchpriority="high"
         />
         <div
           class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30"
@@ -221,7 +201,7 @@ const steps = [
       </div>
 
       <div class="container relative z-10">
-        <div class="hero-content max-w-3xl">
+        <div class="max-w-3xl">
           <div class="mb-6 inline-flex items-center gap-1.5 text-xs font-bold uppercase text-amber-950">
             <span class="relative px-3 py-1.5">
               <span class="relative z-10 flex items-center gap-1.5">
@@ -282,57 +262,59 @@ const steps = [
 
         <!-- floating stats -->
         <div
-          class="hero-stats mt-10 grid max-w-2xl grid-cols-2 gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl sm:mt-16 sm:grid-cols-4 sm:gap-4 sm:p-6"
+          class="hero-stats mt-10 grid max-w-2xl grid-cols-2 gap-3 rounded-2xl bg-gray-900/95 p-4 shadow-2xl ring-1 ring-white/10 backdrop-blur-xl sm:mt-16 sm:grid-cols-4 sm:gap-4 sm:p-6"
         >
           <div v-for="stat in stats" :key="stat.label" class="text-center">
             <div class="text-xl font-bold text-white sm:text-2xl md:text-3xl">
               {{ stat.value }}
             </div>
-            <div class="mt-1 text-xs text-white/60">{{ stat.label }}</div>
+            <div class="mt-1 text-xs text-white/70">{{ stat.label }}</div>
           </div>
-        </div>
-        
-        <!-- Unsplash photo credit -->
-        <div v-if="heroPhotoData" class="mt-4 flex items-center gap-2 text-xs text-white/50">
-          <span>Photo by</span>
-          <a 
-            :href="`${heroPhotoData.user.links.html}?utm_source=theguidegenie&utm_medium=referral`"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="underline hover:text-white/80 transition-colors"
-          >
-            {{ heroPhotoData.user.name }}
-          </a>
-          <span>on</span>
-          <a 
-            href="https://unsplash.com/?utm_source=theguidegenie&utm_medium=referral"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="underline hover:text-white/80 transition-colors"
-          >
-            Unsplash
-          </a>
         </div>
       </div>
       
+      <!-- Unsplash photo credit -->
+      <div v-if="heroPhotoData" class="absolute bottom-24 right-4 z-10 flex items-center gap-1.5 text-[10px] text-white/40 sm:bottom-28 sm:right-6">
+        <span>Photo by</span>
+        <a 
+          :href="`${heroPhotoData.user.links.html}?utm_source=theguidegenie&utm_medium=referral`"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="underline hover:text-white/60 transition-colors"
+        >
+          {{ heroPhotoData.user.name }}
+        </a>
+        <span>on</span>
+        <a 
+          href="https://unsplash.com/?utm_source=theguidegenie&utm_medium=referral"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="underline hover:text-white/60 transition-colors"
+        >
+          Unsplash
+        </a>
+      </div>
+      
       <!-- Wave divider -->
-      <div class="absolute -bottom-1 left-0 right-0 overflow-hidden">
+      <div class="absolute -bottom-1 left-0 right-0 overflow-hidden will-change-transform">
         <svg 
           class="relative block w-full h-12 sm:h-16 md:h-24"
           preserveAspectRatio="none"
           viewBox="0 0 1200 120"
           xmlns="http://www.w3.org/2000/svg"
+          style="transition: none !important;"
         >
           <path 
             d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
             class="fill-background"
+            style="transition: none !important;"
           />
         </svg>
       </div>
     </section>
 
-    <!-- photo mosaic gallery -->
-    <section class="bg-background py-10 sm:py-20">
+    <!-- Photo gallery section -->
+    <section class="relative bg-background py-10 sm:py-20 -mt-16 md:-mt-24 pt-20 sm:pt-28">
       <div class="container">
         <div class="animate-on-scroll mb-8 max-w-xl opacity-0 translate-y-8 transition-all duration-700 ease-out sm:mb-12">
           <Badge variant="info" class="mb-4">
@@ -354,7 +336,9 @@ const steps = [
               <img
                 :src="galleryImages[0]?.src || fallbackImages[1]"
                 :alt="galleryImages[0]?.alt || 'budapest'"
-                class="h-full w-full object-cover"
+                class="h-full w-full object-cover transition-opacity duration-700"
+                style="opacity: 0"
+                onload="this.style.opacity='1'"
               />
               <!-- Photo credit overlay -->
               <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 sm:p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
@@ -376,7 +360,9 @@ const steps = [
               <img
                 :src="galleryImages[1]?.src || fallbackImages[2]"
                 :alt="galleryImages[1]?.alt || 'budapest'"
-                class="h-full w-full object-cover"
+                class="h-full w-full object-cover transition-opacity duration-700"
+                style="opacity: 0"
+                onload="this.style.opacity='1'"
               />
               <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 sm:p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                 <a 
@@ -399,7 +385,9 @@ const steps = [
               <img
                 :src="galleryImages[2]?.src || fallbackImages[3]"
                 :alt="galleryImages[2]?.alt || 'budapest'"
-                class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 transition-opacity duration-700"
+                style="opacity: 0"
+                onload="this.style.opacity='1'"
               />
               <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 sm:p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                 <a 
@@ -420,7 +408,9 @@ const steps = [
               <img
                 :src="galleryImages[3]?.src || fallbackImages[4]"
                 :alt="galleryImages[3]?.alt || 'budapest'"
-                class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 transition-opacity duration-700"
+                style="opacity: 0"
+                onload="this.style.opacity='1'"
               />
               <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 sm:p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                 <a 
@@ -443,7 +433,9 @@ const steps = [
               <img
                 :src="galleryImages[4]?.src || fallbackImages[5]"
                 :alt="galleryImages[4]?.alt || 'budapest'"
-                class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 transition-opacity duration-700"
+                style="opacity: 0"
+                onload="this.style.opacity='1'"
               />
               <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 sm:p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                 <a 
@@ -464,7 +456,9 @@ const steps = [
               <img
                 :src="galleryImages[5]?.src || fallbackImages[6]"
                 :alt="galleryImages[5]?.alt || 'budapest'"
-                class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 transition-opacity duration-700"
+                style="opacity: 0"
+                onload="this.style.opacity='1'"
               />
               <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 sm:p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                 <a 
@@ -535,77 +529,6 @@ const steps = [
       </div>
     </section>
 
-    <!-- packages -->
-    <section class="py-10 sm:py-20">
-      <div class="container">
-        <div class="animate-on-scroll mb-8 flex flex-col gap-4 sm:mb-12 sm:flex-row sm:items-end sm:justify-between opacity-0 translate-y-8 transition-all duration-700 ease-out">
-          <div>
-            <Badge variant="info" class="mb-4">experiences</Badge>
-            <h2 class="font-display text-2xl font-bold sm:text-3xl md:text-4xl">
-              popular packages
-            </h2>
-          </div>
-          <Button variant="outline" class="w-fit rounded-full transition-all duration-300 hover:scale-105" as-child>
-            <NuxtLink to="/tours">view all tours</NuxtLink>
-          </Button>
-        </div>
-
-        <div class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          <Card
-            v-for="(pkg, i) in packages"
-            :key="pkg.name"
-            :class="[
-              'animate-on-scroll package-card relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 opacity-0 translate-y-8',
-              pkg.accent ? 'border-accent' : '',
-            ]"
-            :style="{ transitionDelay: `${i * 100}ms` }"
-          >
-            <div
-              v-if="pkg.accent"
-              class="absolute right-4 top-4 rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground"
-            >
-              popular
-            </div>
-            <CardHeader>
-              <CardTitle class="text-lg font-semibold sm:text-xl">{{ pkg.name }}</CardTitle>
-              <CardDescription class="flex items-center gap-2">
-                <ClockIcon class="size-4" />
-                {{ pkg.duration }}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div class="flex items-baseline gap-1">
-                <span class="text-3xl font-bold sm:text-4xl">€{{ pkg.price }}</span>
-                <span class="text-muted-foreground">/person</span>
-              </div>
-              <ul class="mt-4 space-y-2 sm:mt-6 sm:space-y-3">
-                <li
-                  v-for="feature in pkg.features"
-                  :key="feature"
-                  class="flex items-center gap-2 text-sm"
-                >
-                  <div
-                    class="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10"
-                  >
-                    <CheckIcon class="size-3 text-primary" />
-                  </div>
-                  {{ feature }}
-                </li>
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button
-                :variant="pkg.accent ? 'default' : 'outline'"
-                class="w-full transition-all duration-300 hover:scale-[1.02]"
-                as-child
-              >
-                <NuxtLink to="/tours">book now</NuxtLink>
-              </Button>
-            </CardFooter>
-          </Card>
-        </div>
-      </div>
-    </section>
 
     <!-- featured tours -->
     <section v-if="featuredTours.length" class="border-t border-border bg-muted/30 py-10 sm:py-20">
@@ -667,7 +590,9 @@ const steps = [
         <img
           :src="budapestPhotos?.[7]?.urls?.regular || fallbackImages[7]"
           :alt="budapestPhotos?.[7]?.alt_description || 'budapest'"
-          class="h-full w-full object-cover"
+          class="h-full w-full object-cover transition-opacity duration-1000"
+          style="opacity: 0"
+          onload="this.style.opacity='1'"
         />
         <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-black/50" />
       </div>

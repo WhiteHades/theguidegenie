@@ -360,6 +360,10 @@ const heroImage = computed(() => {
                 :alt="tour.title"
                 class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
+              <span class="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-black/80 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                <component :is="categories.find(c => c.id === (tour.category || 'paid'))?.icon || BadgeEuroIcon" class="size-3" />
+                {{ tour.category || 'paid' }}
+              </span>
               <!-- price badge -->
               <div
                 class="absolute right-3 top-3 rounded-full px-2.5 py-1 text-xs font-bold"
@@ -373,10 +377,6 @@ const heroImage = computed(() => {
               </div>
             </div>
             <CardContent class="p-4">
-              <!-- Tour type badge -->
-              <Badge variant="info" class="mb-2 text-xs">
-                {{ tour.category || 'paid' }}
-              </Badge>
               <div class="flex items-center gap-2 text-xs text-muted-foreground">
                 <MapPinIcon class="size-3.5" />
                 {{ tour.guides?.city || "budapest" }}

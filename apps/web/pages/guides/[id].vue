@@ -132,7 +132,7 @@
     <!-- guide profile -->
     <template v-else>
       <!-- header -->
-      <section class="border-b border-border bg-gradient-to-b from-primary/5 to-background py-12">
+      <section class="border-b border-border bg-gradient-to-b from-primary/5 to-background pt-24 pb-12">
         <div class="container">
           <button
             @click="navigateTo('/tours')"
