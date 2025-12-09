@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import { HeartIcon } from "lucide-vue-next";
+</script>
+
 <template>
   <footer class="border-t border-border bg-card py-16">
     <div class="container">
@@ -41,8 +45,9 @@
       <div
         class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 text-sm text-muted-foreground md:flex-row"
       >
-        <p>© {{ new Date().getFullYear() }} the guide genie. all rights reserved.</p>
-        <ColorModeToggle />
+        <p class="flex items-center gap-1.5">
+          made with <HeartIcon class="size-3 fill-current text-red-500" /> by the guide genie team
+        </p>
       </div>
     </div>
   </footer>

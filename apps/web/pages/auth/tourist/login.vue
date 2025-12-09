@@ -24,6 +24,9 @@ const formSchema = toTypedSchema(
 const form = useForm({
   validationSchema: formSchema,
   initialValues: { email: "", password: "" },
+  validateOnBlur: false,
+  validateOnChange: false,
+  validateOnMount: false,
 });
 
 const { handleSubmit, isSubmitting, setFieldError } = form;

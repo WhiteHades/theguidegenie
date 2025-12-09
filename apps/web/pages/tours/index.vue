@@ -170,7 +170,7 @@ const heroImage = computed(() => {
           class="h-full w-full object-cover"
         />
         <div
-          class="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent"
+          class="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-background/20"
         />
       </div>
       <div class="container relative flex h-full flex-col justify-end pb-6">
@@ -373,6 +373,10 @@ const heroImage = computed(() => {
               </div>
             </div>
             <CardContent class="p-4">
+              <!-- Tour type badge -->
+              <Badge variant="info" class="mb-2 text-xs">
+                {{ tour.category || 'paid' }}
+              </Badge>
               <div class="flex items-center gap-2 text-xs text-muted-foreground">
                 <MapPinIcon class="size-3.5" />
                 {{ tour.guides?.city || "budapest" }}
