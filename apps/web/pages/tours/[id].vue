@@ -298,8 +298,8 @@ const formatTime = (d) =>
           <div class="flex flex-wrap items-start justify-between gap-3">
             <div class="flex-1 min-w-0">
               <h1 class="font-display text-xl font-bold md:text-2xl">{{ tour.title }}</h1>
-              <!-- All meta info in one line including category -->
-              <div class="mt-1.5 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+              <!-- All meta info - wrap better on mobile -->
+              <div class="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs sm:text-sm text-muted-foreground">
                 <span class="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                   <component :is="categoryIcons[tour.category] || BadgeEuroIcon" class="size-3" />
                   {{ tour.category || 'paid' }}
@@ -335,7 +335,8 @@ const formatTime = (d) =>
       <section class="py-4">
         <div class="container">
           <div class="grid gap-4 lg:grid-cols-5">
-            <div class="lg:col-span-3 space-y-4">
+            <!-- Main content - always full width on mobile, 3 cols on lg -->
+            <div class="space-y-4 lg:col-span-3">
               <div v-if="isFreeOrTipBased" class="flex items-center gap-3 rounded-lg border border-accent/30 bg-accent/10 p-3 text-sm">
                 <HeartIcon class="size-4 shrink-0 text-accent" />
                 <span><strong>free to book</strong> – tip your guide what you feel the experience was worth</span>
