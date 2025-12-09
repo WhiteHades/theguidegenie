@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// @ts-nocheck
 import { PlusIcon, CalendarIcon, UsersIcon, LayoutGridIcon, ClockIcon, ImageIcon, MapPinIcon, EyeIcon } from "lucide-vue-next"
 
 definePageMeta({ 
