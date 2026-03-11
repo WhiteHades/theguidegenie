@@ -16,7 +16,7 @@
           New:
         </span>
         <span class="ml-1 block font-medium">
-          Amazing feature of your SaaS
+          private tour booking now live
         </span>
       </div>
     </div>
@@ -36,13 +36,13 @@
       class="mt-6 flex flex-col items-center justify-center gap-3 md:flex-row"
     >
       <Button size="lg" asChild>
-        <NuxtLink href="/auth/login">
-          Get started
+        <NuxtLink href="/auth/tourist/signup">
+          Start booking
           <ArrowRightIcon class="ml-2 size-4" />
         </NuxtLink>
       </Button>
       <Button variant="outline" size="lg" asChild>
-        <NuxtLink href="/docs">Documentation</NuxtLink>
+        <NuxtLink href="/guides/signup">Become a guide</NuxtLink>
       </Button>
     </div>
 
@@ -50,7 +50,7 @@
       <h5
         class="text-xs font-semibold uppercase tracking-wider text-foreground/50"
       >
-        Built & shipped with these awesome tools
+        trusted by travellers and local guides
       </h5>
 
       <div
