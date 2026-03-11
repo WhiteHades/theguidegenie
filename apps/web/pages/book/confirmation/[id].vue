@@ -15,7 +15,6 @@ useSeoMeta({ title: "manage booking" });
 
 const route = useRoute();
 const supabase = useSupabase();
-const bookingManageTokenStore = useBookingManageToken();
 const loading = ref(true);
 const booking = ref<Record<string, any> | null>(null);
 const validToken = ref(false);
@@ -24,7 +23,7 @@ const bookingId = computed(() => {
   const value = route.params.id;
   return Array.isArray(value) ? value[0] : value;
 });
-const manageToken = ref<string | null>(null);
+const manageLink = ref<string | null>(null);
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString("en-US", {
@@ -42,20 +41,10 @@ function formatTime(dateString: string) {
   });
 }
 
-const manageLink = computed(() => {
-  if (!booking.value || !manageToken.value || !import.meta.client) {
-    return "";
-  }
-
-  const url = new URL(`/book/confirmation/${booking.value.booking_id}`, window.location.origin);
-  url.searchParams.set("token", manageToken.value);
-  return url.toString();
-});
-
-const hasPrivateLink = computed(() => !!manageToken.value && !!manageLink.value);
+const hasPrivateLink = computed(() => !!manageLink.value);
 
 const maskedManageLink = computed(() => {
-  if (!booking.value) {
+  if (!booking.value || !manageLink.value) {
     return "";
   }
 
@@ -71,20 +60,14 @@ async function fetchBooking() {
   }
 
   try {
-    const { data, error } = await supabase.rpc("get_booking_details", {
-      p_booking_id: bookingId.value,
-      p_manage_token: manageToken.value,
-    });
-
-    if (error) 
-throw error;
-
-    const result = Array.isArray(data) ? data[0] : data;
-    booking.value = result || null;
-    validToken.value = !!result;
+    const result = await $fetch<{ booking: Record<string, any> | null; manageLink: string | null }>(`/api/bookings/${bookingId.value}`);
+    booking.value = result.booking;
+    manageLink.value = result.manageLink;
+    validToken.value = !!result.booking;
   } catch (error) {
     console.error("error fetching booking", error);
     booking.value = null;
+    manageLink.value = null;
     validToken.value = false;
   } finally {
     loading.value = false;
@@ -114,7 +97,6 @@ return;
   try {
     const { data, error } = await supabase.rpc("cancel_booking", {
       p_booking_id: booking.value.booking_id,
-      p_manage_token: manageToken.value,
     });
 
     if (error) 
@@ -130,14 +112,19 @@ throw error;
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   const queryToken = typeof route.query.token === "string" ? route.query.token : null;
 
-  manageToken.value = queryToken || bookingManageTokenStore.read(bookingId.value);
-
   if (queryToken) {
-    bookingManageTokenStore.write(bookingId.value, queryToken);
-    bookingManageTokenStore.scrubFromUrl();
+    await $fetch(`/api/bookings/${bookingId.value}/session`, {
+      method: "POST",
+      body: {
+        token: queryToken,
+      },
+    });
+
+    await navigateTo(`/book/confirmation/${bookingId.value}`, { replace: true });
+    return;
   }
 
   fetchBooking();
