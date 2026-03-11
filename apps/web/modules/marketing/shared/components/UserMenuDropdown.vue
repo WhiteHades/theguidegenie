@@ -37,7 +37,7 @@ async function handleLogout() {
       <Button variant="ghost" class="relative h-10 w-fit gap-2 rounded-full pl-2 pr-4 text-left hover:bg-muted">
         <Avatar class="size-8">
           <AvatarImage v-if="guideProfile?.avatar_url" :src="guideProfile.avatar_url" :alt="user.name" />
-          <AvatarFallback class="bg-primary/10 text-primary font-medium text-xs">
+          <AvatarFallback class="bg-primary/10 text-xs font-medium text-primary">
             {{ user.name?.charAt(0).toUpperCase() || "U" }}
           </AvatarFallback>
         </Avatar>

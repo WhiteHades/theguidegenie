@@ -45,7 +45,7 @@ const onSubmit = handleSubmit(async (values) => {
 
 <template>
   <div class="space-y-6">
-    <NuxtLink to="/" class="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground smooth">
+    <NuxtLink to="/" class="smooth inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
       <ArrowLeftIcon class="size-3" /> back
     </NuxtLink>
 

@@ -9,8 +9,10 @@
   }>();
 
   const errorTitle = computed(() => {
-    if (props.error.statusCode === 404) return "page not found";
-    if (props.error.statusCode === 500) return "something went wrong";
+    if (props.error.statusCode === 404) 
+return "page not found";
+    if (props.error.statusCode === 500) 
+return "something went wrong";
     return "an error occurred";
   });
 

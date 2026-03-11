@@ -13,7 +13,8 @@
   const isTop = computed(() => verticalScrollPosition.value < 10);
 
   const dashboardLink = computed(() => {
-    if (!user.value) return "/auth/tourist/login";
+    if (!user.value) 
+return "/auth/tourist/login";
     return guideProfile.value
       ? "/guides/dashboard"
       : "/app/dashboard";
@@ -58,9 +59,9 @@
 
 <template>
   <!-- floating pill navbar -->
-  <nav class="fixed left-0 right-0 top-2 z-50 px-2 sm:top-4 sm:px-4">
+  <nav class="fixed inset-x-0 top-2 z-50 px-2 sm:top-4 sm:px-4">
     <div
-      class="mx-auto flex max-w-5xl items-center justify-between rounded-full px-4 py-2.5 smooth sm:px-6 sm:py-3"
+      class="smooth mx-auto flex max-w-5xl items-center justify-between rounded-full px-4 py-2.5 sm:px-6 sm:py-3"
       :class="
         isTop
           ? 'bg-white/10 backdrop-blur-xl border border-white/20'
@@ -82,7 +83,7 @@
           v-for="item in menuItems"
           :key="item.to"
           :to="item.to"
-          class="text-sm smooth"
+          class="smooth text-sm"
           :class="[
             isTop
               ? 'text-white/80 hover:text-white'
@@ -100,7 +101,7 @@
         <ClientOnly>
           <button
             type="button"
-            class="flex size-8 sm:size-9 items-center justify-center rounded-full transition-colors"
+            class="flex size-8 items-center justify-center rounded-full transition-colors sm:size-9"
             :class="isTop ? 'text-white hover:bg-white/10' : 'text-foreground hover:bg-muted'"
             @click="toggleColorMode"
             aria-label="Toggle color mode"
@@ -116,7 +117,7 @@
         <!-- Mobile menu button -->
         <button
           type="button"
-          class="flex size-8 sm:size-9 items-center justify-center rounded-full transition-colors md:hidden"
+          class="flex size-8 items-center justify-center rounded-full transition-colors sm:size-9 md:hidden"
           :class="isTop ? 'text-white hover:bg-white/10' : 'text-foreground hover:bg-muted'"
           @click="mobileMenuOpen = !mobileMenuOpen"
           aria-label="Toggle menu"
@@ -132,7 +133,7 @@
           </template>
           <template v-else>
             <Button
-              class="hidden md:flex rounded-full px-4"
+              class="hidden rounded-full px-4 md:flex"
               size="sm"
               variant="ghost"
               :class="isTop ? 'text-white hover:bg-white/10' : ''"
@@ -141,7 +142,7 @@
               <NuxtLink to="/auth/tourist/login">login</NuxtLink>
             </Button>
             <Button
-              class="hidden md:flex rounded-full px-4"
+              class="hidden rounded-full px-4 md:flex"
               size="sm"
               :variant="isTop ? 'secondary' : 'default'"
               :class="isTop && 'bg-white text-primary hover:bg-white/90 border-0'"

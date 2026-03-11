@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { CalendarGridBody, type CalendarGridBodyProps } from 'reka-ui'
+import { CalendarGridBody } from 'reka-ui'
 </script>
 
 <template>

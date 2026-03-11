@@ -1,7 +1,7 @@
 type OAuthProvider = "google" | "github";
 type UserType = "tourist" | "guide" | "admin";
 
-export interface AuthUser {
+export type AuthUser = {
   id: string;
   email: string;
   user_type: UserType;
@@ -9,7 +9,7 @@ export interface AuthUser {
   phone: string | null;
 }
 
-export interface GuideProfile {
+export type GuideProfile = {
   id: string;
   user_id: string;
   name: string;
@@ -163,8 +163,10 @@ export function useAuth() {
     const supabase = getSupabase();
     const safeEmail = normaliseEmail(email);
 
-    if (!safeEmail) throw new Error("email is required");
-    if (!password) throw new Error("password is required");
+    if (!safeEmail) 
+throw new Error("email is required");
+    if (!password) 
+throw new Error("password is required");
 
     const { error } = await supabase.auth.signInWithPassword({
       email: safeEmail,
@@ -193,8 +195,10 @@ export function useAuth() {
     const password = options.password;
     const userType = options.userType || "tourist";
 
-    if (!email) throw new Error("email is required");
-    if (!name || name.length < 2) throw new Error("name must be at least 2 characters");
+    if (!email) 
+throw new Error("email is required");
+    if (!name || name.length < 2) 
+throw new Error("name must be at least 2 characters");
     if (!password || password.length < 8) {
       throw new Error("password must be at least 8 characters");
     }
@@ -261,7 +265,8 @@ export function useAuth() {
     const supabase = getSupabase();
     const safeEmail = normaliseEmail(email);
 
-    if (!safeEmail) throw new Error("email is required");
+    if (!safeEmail) 
+throw new Error("email is required");
 
     const callbackUrl = new URL("/auth/callback", window.location.origin);
     callbackUrl.searchParams.set("mode", "reset");

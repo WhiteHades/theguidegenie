@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import type { UnsplashPhoto } from "~/composables/useUnsplash";
 
-  interface Props {
+  type Props = {
     photo: UnsplashPhoto;
     width?: number;
     height?: number;
@@ -50,14 +50,14 @@
       :src="imageUrl"
       :alt="photo.alt_description || photo.description || 'unsplash photo'"
       :loading="lazy ? 'lazy' : 'eager'"
-      class="h-full w-full object-cover smooth"
+      class="smooth size-full object-cover"
     />
 
     <div
       v-if="showAttribution"
-      class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3 opacity-0 group-hover:opacity-100 smooth"
+      class="smooth absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-3 opacity-0 group-hover:opacity-100"
     >
-      <p class="text-xs text-white/90 lowercase">
+      <p class="text-xs lowercase text-white/90">
         photo by
         <a
           :href="photographerUrl"

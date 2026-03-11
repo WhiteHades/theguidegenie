@@ -11,7 +11,6 @@
     LandmarkIcon,
     BadgeEuroIcon,
     FootprintsIcon,
-    HeartIcon,
   } from "lucide-vue-next";
 
   definePageMeta({ layout: "marketing" });
@@ -129,7 +128,7 @@
       <p class="mt-2 text-muted-foreground">this profile may have been removed</p>
       <Button
         @click="navigateTo('/tours')"
-        class="mt-4 btn-bounce rounded-full"
+        class="btn-bounce mt-4 rounded-full"
         variant="outline"
       >
         browse all tours
@@ -139,11 +138,11 @@
     <!-- guide profile -->
     <template v-else>
       <!-- header -->
-      <section class="border-b border-border bg-gradient-to-b from-primary/5 to-background pt-24 pb-12">
+      <section class="border-b border-border bg-gradient-to-b from-primary/5 to-background pb-12 pt-24">
         <div class="container">
           <button
             @click="navigateTo('/tours')"
-            class="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground smooth"
+            class="smooth mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeftIcon class="size-4" />
             back to tours
@@ -159,7 +158,7 @@
                 <img
                   :src="guide.avatar_url"
                   :alt="guide.name"
-                  class="h-full w-full object-cover"
+                  class="size-full object-cover"
                 />
               </div>
               <div
@@ -204,7 +203,7 @@
                 <a
                   v-if="guide.contact_email"
                   :href="`mailto:${guide.contact_email}`"
-                  class="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:border-primary hover:bg-primary/5 smooth"
+                  class="smooth inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:border-primary hover:bg-primary/5"
                 >
                   <MailIcon class="size-4" />
                   contact
@@ -212,7 +211,7 @@
                 <a
                   v-if="guide.phone"
                   :href="`tel:${guide.phone}`"
-                  class="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:border-primary hover:bg-primary/5 smooth"
+                  class="smooth inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:border-primary hover:bg-primary/5"
                 >
                   <PhoneIcon class="size-4" />
                   call
@@ -238,13 +237,13 @@
               v-for="(tour, i) in tours"
               :key="tour.id"
               :to="`/tours/${tour.id}`"
-              class="group overflow-hidden rounded-2xl border border-border bg-card card-hover"
+              class="card-hover group overflow-hidden rounded-2xl border border-border bg-card"
             >
               <div class="relative aspect-[4/3] overflow-hidden">
                 <img
                   :src="getTourPhoto(i)"
                   :alt="tour.title"
-                  class="h-full w-full object-cover smooth group-hover:scale-105"
+                  class="smooth size-full object-cover group-hover:scale-105"
                 />
                 <!-- category badge -->
                 <div class="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-background/90 px-2.5 py-1 text-xs font-medium backdrop-blur-sm">
@@ -264,7 +263,7 @@
               </div>
 
               <div class="p-6">
-                <h3 class="text-lg font-semibold group-hover:text-primary smooth">
+                <h3 class="smooth text-lg font-semibold group-hover:text-primary">
                   {{ tour.title }}
                 </h3>
                 <p class="mt-2 line-clamp-2 text-sm text-muted-foreground">

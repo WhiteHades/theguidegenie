@@ -80,7 +80,7 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-  <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+  <div class="duration-500 animate-in fade-in slide-in-from-bottom-4">
     <!-- success state -->
     <div v-if="success" class="py-12 text-center">
       <div class="mx-auto mb-6 flex size-20 items-center justify-center rounded-full bg-primary/10">
@@ -191,7 +191,7 @@ const onSubmit = handleSubmit(async (values) => {
               <Textarea
                 v-bind="componentField"
                 rows="4"
-                class="rounded-xl border-border bg-muted/30 pl-11 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 resize-none"
+                class="resize-none rounded-xl border-border bg-muted/30 pl-11 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
                 placeholder="tell tourists about your experience, what makes your tours special..."
               />
             </div>
@@ -201,7 +201,7 @@ const onSubmit = handleSubmit(async (values) => {
 
         <!-- submit -->
         <Button
-          class="h-12 w-full rounded-xl btn-bounce text-sm font-medium"
+          class="btn-bounce h-12 w-full rounded-xl text-sm font-medium"
           type="submit"
           :disabled="isSubmitting"
         >

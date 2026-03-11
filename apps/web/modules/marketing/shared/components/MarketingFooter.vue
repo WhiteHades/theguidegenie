@@ -19,10 +19,10 @@ import { HeartIcon } from "lucide-vue-next";
         <div>
           <h4 class="small-caps mb-4 font-semibold">explore</h4>
           <div class="flex flex-col gap-2 text-sm text-muted-foreground">
-            <NuxtLink to="/tours" class="hover:text-foreground smooth"
+            <NuxtLink to="/tours" class="smooth hover:text-foreground"
               >all tours</NuxtLink
             >
-            <NuxtLink to="/guides/signup" class="hover:text-foreground smooth"
+            <NuxtLink to="/guides/signup" class="smooth hover:text-foreground"
               >become a guide</NuxtLink
             >
           </div>
@@ -32,10 +32,10 @@ import { HeartIcon } from "lucide-vue-next";
         <div>
           <h4 class="small-caps mb-4 font-semibold">legal</h4>
           <div class="flex flex-col gap-2 text-sm text-muted-foreground">
-            <NuxtLink to="/legal/privacy" class="hover:text-foreground smooth"
+            <NuxtLink to="/legal/privacy" class="smooth hover:text-foreground"
               >privacy policy</NuxtLink
             >
-            <NuxtLink to="/legal/terms" class="hover:text-foreground smooth"
+            <NuxtLink to="/legal/terms" class="smooth hover:text-foreground"
               >terms of service</NuxtLink
             >
           </div>

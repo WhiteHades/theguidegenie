@@ -10,6 +10,6 @@
     :id="formMessageId"
     as="p"
     :name="toValue(name)"
-    class="text-destructive text-sm font-normal"
+    class="text-sm font-normal text-destructive"
   />
 </template>

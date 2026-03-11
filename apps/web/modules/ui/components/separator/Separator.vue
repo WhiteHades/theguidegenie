@@ -3,7 +3,7 @@ import type { HTMLAttributes } from "vue";
 import { Separator as SeparatorPrimitive } from "radix-vue";
 import { cn } from "@/modules/ui/lib/utils";
 
-interface SeparatorProps {
+type SeparatorProps = {
   orientation?: "horizontal" | "vertical";
   decorative?: boolean;
   class?: HTMLAttributes["class"];

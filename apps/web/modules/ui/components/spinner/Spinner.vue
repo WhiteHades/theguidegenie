@@ -2,7 +2,7 @@
 import type { HTMLAttributes } from "vue";
 import { cn } from "@/modules/ui/lib/utils";
 
-interface SpinnerProps {
+type SpinnerProps = {
   class?: HTMLAttributes["class"];
   size?: "sm" | "md" | "lg";
 }

@@ -141,7 +141,8 @@ function removeSlot(id: string) {
 }
 
 async function searchUnsplashPhotos() {
-  if (!unsplashQuery.value.trim()) return;
+  if (!unsplashQuery.value.trim()) 
+return;
   unsplashPhotos.value = (await searchPhotos({ query: unsplashQuery.value, orientation: "landscape", perPage: 8 })) || [];
 }
 
@@ -176,7 +177,8 @@ async function createTour() {
       })),
     });
 
-    if (error) throw error;
+    if (error) 
+throw error;
 
     toast({ title: "tour created", description: form.is_public ? "your tour is live" : "your tour has been saved as a draft", variant: "success" });
     await navigateTo(`/tours/${data}`);
@@ -331,7 +333,7 @@ async function createTour() {
                     <span class="font-bold">{{ formatSlotDate(slot.start_utc) }}</span>
                   </div>
                   <div>
-                    <div class="font-medium text-sm">{{ formatSlotTime(slot.start_utc) }}</div>
+                    <div class="text-sm font-medium">{{ formatSlotTime(slot.start_utc) }}</div>
                     <div class="text-xs text-muted-foreground">{{ slot.capacity }} spots</div>
                   </div>
                 </div>
@@ -367,14 +369,14 @@ async function createTour() {
               :class="form.cover_image.includes(photo.id) ? 'border-primary ring-2 ring-primary ring-offset-2' : 'border-transparent'"
               @click="selectPhoto(photo)"
             >
-              <img :src="photo.urls.small" class="h-full w-full object-cover" :alt="photo.alt_description || 'tour cover option'" />
+              <img :src="photo.urls.small" class="size-full object-cover" :alt="photo.alt_description || 'tour cover option'" />
             </button>
           </div>
 
           <div v-if="form.cover_image" class="mt-6">
             <p class="mb-2 text-sm font-medium">preview</p>
             <div class="relative aspect-[2/1] w-full overflow-hidden rounded-xl border border-border">
-              <img :src="form.cover_image" class="h-full w-full object-cover" alt="tour cover preview" />
+              <img :src="form.cover_image" class="size-full object-cover" alt="tour cover preview" />
             </div>
           </div>
         </div>

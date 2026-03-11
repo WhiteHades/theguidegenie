@@ -33,12 +33,12 @@ const bgImage = computed(() => {
 <template>
   <div class="flex min-h-screen">
     <div class="relative hidden overflow-hidden lg:block lg:w-1/2">
-      <img :src="fallbackImage" alt="budapest" class="absolute inset-0 h-full w-full object-cover" />
+      <img :src="fallbackImage" alt="budapest" class="absolute inset-0 size-full object-cover" />
       <img
         v-if="bgImage !== fallbackImage"
         :src="bgImage"
         alt="budapest"
-        class="absolute inset-0 h-full w-full object-cover transition-opacity duration-700"
+        class="absolute inset-0 size-full object-cover transition-opacity duration-700"
         :class="imageLoaded ? 'opacity-100' : 'opacity-0'"
         @load="imageLoaded = true"
       />

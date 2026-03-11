@@ -48,7 +48,8 @@ async function fetchBookings() {
 
   try {
     const { data, error } = await supabase.rpc("get_account_bookings");
-    if (error) throw error;
+    if (error) 
+throw error;
     bookings.value = data || [];
   } catch (error) {
     console.error("failed to load bookings", error);
@@ -59,7 +60,8 @@ async function fetchBookings() {
 }
 
 async function cancelBooking(bookingId: string) {
-  if (!supabase) return;
+  if (!supabase) 
+return;
   cancellingId.value = bookingId;
 
   try {
@@ -67,7 +69,8 @@ async function cancelBooking(bookingId: string) {
       p_booking_id: bookingId,
     });
 
-    if (error) throw error;
+    if (error) 
+throw error;
 
     await fetchBookings();
     toast({ title: "booking cancelled", variant: "success" });

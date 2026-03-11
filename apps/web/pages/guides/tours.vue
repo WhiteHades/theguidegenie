@@ -20,9 +20,11 @@ if (!supabase) {
 }
 
 const { data: tours } = await useAsyncData("guide-tour-list", async () => {
-  if (!supabase) return [];
+  if (!supabase) 
+return [];
   const { data, error } = await supabase.rpc("get_guide_tours");
-  if (error) throw error;
+  if (error) 
+throw error;
   return data || [];
 });
 </script>
@@ -48,7 +50,7 @@ const { data: tours } = await useAsyncData("guide-tour-list", async () => {
     <div v-else class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <Card v-for="tour in tours" :key="tour.id" class="overflow-hidden">
         <div v-if="tour.cover_image" class="h-40">
-          <img :src="tour.cover_image" :alt="tour.title" class="h-full w-full object-cover" />
+          <img :src="tour.cover_image" :alt="tour.title" class="size-full object-cover" />
         </div>
         <CardHeader>
           <div class="flex items-center justify-between gap-3">

@@ -31,7 +31,8 @@ const form = useForm({
 watch(
   () => auth.user.value,
   (nextUser) => {
-    if (!nextUser) return;
+    if (!nextUser) 
+return;
     form.setValues({
       name: nextUser.name || "",
       phone: nextUser.phone || "",

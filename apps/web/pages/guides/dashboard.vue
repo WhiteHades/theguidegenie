@@ -32,29 +32,36 @@ if (!supabase) {
 const guide = computed(() => guideProfile.value);
 
 const { data: tours, refresh: refreshTours } = await useAsyncData("guide-tours", async () => {
-  if (!supabase || !guide.value) return [];
+  if (!supabase || !guide.value) 
+return [];
   const { data, error } = await supabase.rpc("get_guide_tours");
-  if (error) throw error;
+  if (error) 
+throw error;
   return data || [];
 });
 
 const { data: slots, refresh: refreshSlots } = await useAsyncData("guide-slots", async () => {
-  if (!supabase || !guide.value) return [];
+  if (!supabase || !guide.value) 
+return [];
   const { data, error } = await supabase.rpc("get_guide_slots");
-  if (error) throw error;
+  if (error) 
+throw error;
   return data || [];
 });
 
 const { data: bookings, refresh: refreshBookings } = await useAsyncData("guide-bookings", async () => {
-  if (!supabase || !guide.value) return [];
+  if (!supabase || !guide.value) 
+return [];
   const { data, error } = await supabase.rpc("get_guide_bookings");
-  if (error) throw error;
+  if (error) 
+throw error;
   return data || [];
 });
 
 const estimatedRevenue = computed(() => {
   return (tours.value || []).reduce((sum, tour) => {
-    if (!tour.base_price_cents) return sum;
+    if (!tour.base_price_cents) 
+return sum;
 
     const guestCount = Number(tour.confirmed_guest_count || 0);
     return sum + guestCount * (tour.base_price_cents / 100);
@@ -135,7 +142,7 @@ function formatTime(value: string) {
 
       <div>
         <div class="mb-4 flex items-center justify-between">
-          <h2 class="text-xl font-semibold small-caps">your tours</h2>
+          <h2 class="small-caps text-xl font-semibold">your tours</h2>
           <Button variant="link" size="sm" as-child><NuxtLink to="/guides/tours">view all</NuxtLink></Button>
         </div>
 
@@ -145,12 +152,12 @@ function formatTime(value: string) {
         </div>
 
         <div v-else class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Card v-for="tour in tours.slice(0, 6)" :key="tour.id" class="overflow-hidden bg-card card-hover">
+          <Card v-for="tour in tours.slice(0, 6)" :key="tour.id" class="card-hover overflow-hidden bg-card">
             <div class="relative h-28 bg-muted/50">
               <div v-if="!tour.cover_image" class="flex h-full items-center justify-center text-muted-foreground/30">
                 <ImageIcon class="size-8" />
               </div>
-              <img v-else :src="tour.cover_image" class="h-full w-full object-cover" :alt="tour.title" />
+              <img v-else :src="tour.cover_image" class="size-full object-cover" :alt="tour.title" />
             </div>
 
             <CardHeader class="py-3">
@@ -176,7 +183,7 @@ function formatTime(value: string) {
 
     <div v-else-if="activeTab === 'calendar'" class="animate-in fade-in slide-in-from-bottom-2">
       <div class="mb-6 flex items-center justify-between">
-        <h2 class="text-xl font-semibold small-caps">upcoming schedule</h2>
+        <h2 class="small-caps text-xl font-semibold">upcoming schedule</h2>
         <Button size="sm" variant="outline" @click="navigateTo('/guides/tours/create')">
           <PlusIcon class="mr-2 size-4" /> add tour with slots
         </Button>
@@ -211,7 +218,7 @@ function formatTime(value: string) {
 
     <div v-else class="animate-in fade-in slide-in-from-bottom-2">
       <div class="mb-6">
-        <h2 class="text-xl font-semibold small-caps">confirmed bookings</h2>
+        <h2 class="small-caps text-xl font-semibold">confirmed bookings</h2>
         <p class="mt-1 text-sm text-muted-foreground">{{ bookings?.length || 0 }} total bookings</p>
       </div>
 

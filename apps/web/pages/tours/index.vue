@@ -80,7 +80,8 @@ onMounted(async () => {
 });
 
 const filteredTours = computed(() => {
-  if (!tours.value) return [];
+  if (!tours.value) 
+return [];
   let result = tours.value;
 
   if (selectedCategory.value !== "all") {
@@ -102,8 +103,10 @@ const filteredTours = computed(() => {
 
 const activeFiltersCount = computed(() => {
   let count = 0;
-  if (selectedCategory.value !== "all") count++;
-  if (searchQuery.value) count++;
+  if (selectedCategory.value !== "all") 
+count++;
+  if (searchQuery.value) 
+count++;
   return count;
 });
 
@@ -155,7 +158,7 @@ const heroImage = computed(() => {
         <img
           :src="heroImage"
           alt="budapest tours"
-          class="h-full w-full object-cover"
+          class="size-full object-cover"
         />
         <div
           class="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-background/20"
@@ -182,7 +185,7 @@ const heroImage = computed(() => {
       <div class="container py-4">
         <div class="flex items-center gap-3">
           <!-- search -->
-          <div class="relative flex-1 max-w-md">
+          <div class="relative max-w-md flex-1">
             <SearchIcon
               class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
             />
@@ -346,7 +349,7 @@ const heroImage = computed(() => {
               <img
                 :src="getTourPhoto(i)"
                 :alt="tour.title"
-                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                class="size-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <span class="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-black/80 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
                 <component :is="categories.find(c => c.id === (tour.category || 'paid'))?.icon || BadgeEuroIcon" class="size-3" />
@@ -401,7 +404,7 @@ const heroImage = computed(() => {
                 <img
                   :src="getTourPhoto(i)"
                   :alt="tour.title"
-                  class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  class="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
               <div class="flex flex-1 flex-col justify-between p-5">

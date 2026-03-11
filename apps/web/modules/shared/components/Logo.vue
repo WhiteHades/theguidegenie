@@ -12,7 +12,7 @@
 <template>
   <span class="flex items-center font-semibold leading-none text-primary">
     <!-- TODO: own -->
-    <div class="size-10 rounded-lg bg-primary/10 flex items-center justify-center">
+    <div class="flex size-10 items-center justify-center rounded-lg bg-primary/10">
       <span class="text-2xl">🧞</span>
     </div>
     <span

@@ -8,12 +8,12 @@
 
 <template>
   <div 
-    class="absolute left-0 right-0 w-full overflow-hidden leading-[0] pointer-events-none"
+    class="pointer-events-none absolute inset-x-0 w-full overflow-hidden leading-[0]"
     :class="[flip ? 'rotate-180' : '', props.class]"
   >
     <svg 
       v-if="variant === 'wave' || !variant"
-      class="relative block w-full h-16 md:h-24"
+      class="relative block h-16 w-full md:h-24"
       preserveAspectRatio="none"
       viewBox="0 0 1200 120"
       xmlns="http://www.w3.org/2000/svg"
@@ -28,7 +28,7 @@
     <!-- Curve variant -->
     <svg 
       v-else-if="variant === 'curve'"
-      class="relative block w-full h-20 md:h-32"
+      class="relative block h-20 w-full md:h-32"
       preserveAspectRatio="none"
       viewBox="0 0 1200 120"
       xmlns="http://www.w3.org/2000/svg"
@@ -50,7 +50,7 @@
     <!-- Angle variant -->
     <svg 
       v-else-if="variant === 'angle'"
-      class="relative block w-full h-12 md:h-20"
+      class="relative block h-12 w-full md:h-20"
       preserveAspectRatio="none"
       viewBox="0 0 1200 120"
       xmlns="http://www.w3.org/2000/svg"

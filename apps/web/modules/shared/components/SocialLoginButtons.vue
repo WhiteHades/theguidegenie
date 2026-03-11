@@ -9,7 +9,8 @@ const props = defineProps<{
 
 // guard useAuth for ssr to avoid issues when supabase is not available
 const signinWithOAuth = (() => {
-  if (import.meta.server) return async () => {};
+  if (import.meta.server) 
+return async () => {};
   try {
     return useAuth().signinWithOAuth;
   } catch {
