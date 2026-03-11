@@ -23,14 +23,11 @@ useSeoMeta({
 
 const { searchPhotos, buildImageUrl } = useUnsplash();
 
-// view mode
 const viewMode = ref<"grid" | "list">("grid");
 
-// filters
 const selectedCategory = ref("all");
 const searchQuery = ref("");
 
-// category definitions
 const categories = [
   { id: "all", label: "all", icon: SparklesIcon },
   { id: "free", label: "free", icon: HeartIcon },
@@ -39,20 +36,15 @@ const categories = [
   { id: "museum", label: "museums", icon: LandmarkIcon },
 ];
 
-// client-side data - wrapped in refs that are only set on client
 const tours = ref<any[]>([]);
 const tourPhotos = ref<any[]>([]);
 const loading = ref(true);
-const photosLoading = ref(true);
 
-// fetch data only on client to avoid hydration issues
 onMounted(async () => {
-  // small delay to ensure plugins are loaded
   await nextTick();
   
   const supabase = useSupabase();
   
-  // fetch tours
   try {
     if (supabase) {
       const { data, error } = await supabase
@@ -75,7 +67,6 @@ onMounted(async () => {
     loading.value = false;
   }
 
-  // fetch photos
   try {
     const photos = await searchPhotos({
       query: "budapest walking tour",
@@ -85,8 +76,6 @@ onMounted(async () => {
     tourPhotos.value = photos || [];
   } catch (e) {
     console.error("Failed to fetch photos:", e);
-  } finally {
-    photosLoading.value = false;
   }
 });
 
@@ -94,12 +83,10 @@ const filteredTours = computed(() => {
   if (!tours.value) return [];
   let result = tours.value;
 
-  // category filter
   if (selectedCategory.value !== "all") {
     result = result.filter((t: any) => t.category === selectedCategory.value);
   }
 
-  // search filter
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase();
     result = result.filter(
@@ -125,8 +112,11 @@ function clearFilters() {
   searchQuery.value = "";
 }
 
-// get photo for tour
 const getTourPhoto = (index: number) => {
+  if (tours.value?.[index]?.cover_image) {
+    return tours.value[index].cover_image;
+  }
+
   if (tourPhotos.value?.[index % tourPhotos.value.length]) {
     return buildImageUrl(
       tourPhotos.value[index % tourPhotos.value.length].urls.raw,
@@ -136,7 +126,6 @@ const getTourPhoto = (index: number) => {
   return "https://images.unsplash.com/photo-1541849546-216549ae216d?w=600&q=80";
 };
 
-// helper to get tour display price
 const getTourPriceDisplay = (tour: any) => {
   if (tour.category === "free" || (tour.tips_enabled && !tour.base_price_cents)) {
     return { text: "free", subtext: "tip-based" };
@@ -147,7 +136,6 @@ const getTourPriceDisplay = (tour: any) => {
   return { text: `€${price}`, subtext: "/person" };
 };
 
-// hero from unsplash
 const heroImage = computed(() => {
   if (tourPhotos.value?.[0]) {
     return buildImageUrl(tourPhotos.value[0].urls.raw, {

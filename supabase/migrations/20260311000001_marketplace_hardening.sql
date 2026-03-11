@@ -520,7 +520,8 @@ returns table (
   guide_city text,
   guide_contact_email text,
   guide_phone text,
-  guide_avatar_url text
+  guide_avatar_url text,
+  has_guest_manage_token boolean
 )
 language sql
 stable
@@ -554,7 +555,8 @@ as $$
     g.city as guide_city,
     g.contact_email as guide_contact_email,
     g.phone as guide_phone,
-    g.avatar_url as guide_avatar_url
+    g.avatar_url as guide_avatar_url,
+    false as has_guest_manage_token
   from public.bookings b
   join public.time_slots ts on ts.id = b.time_slot_id
   join public.tours t on t.id = ts.tour_id

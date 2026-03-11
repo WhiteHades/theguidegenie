@@ -48,6 +48,10 @@
 
   async function fetchGuideProfile() {
     loading.value = true;
+    if (!supabase) {
+      loading.value = false;
+      return;
+    }
     const params = route.params;
     const guideId = Array.isArray(params.id) ? params.id[0] : params.id;
 
@@ -85,6 +89,10 @@
   });
 
   const getTourPhoto = (index) => {
+    if (tours.value?.[index]?.cover_image) {
+      return tours.value[index].cover_image;
+    }
+
     if (guidePhotos.value?.[index % guidePhotos.value.length]) {
       return buildImageUrl(
         guidePhotos.value[index % guidePhotos.value.length].urls.raw,
@@ -282,4 +290,3 @@
     </template>
   </div>
 </template>
-

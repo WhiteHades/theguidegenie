@@ -28,7 +28,7 @@ definePageMeta({ layout: "marketing" })
 
 const route = useRoute()
 const supabase = useSupabase()
-const { user } = useAuth()
+const { user, guideProfile } = useAuth()
 const { searchPhotos, buildImageUrl } = useUnsplash()
 
 const loading = ref(true)
@@ -74,6 +74,10 @@ const { data: tourPhotos } = await useAsyncData(
 )
 
 const heroImage = computed(() => {
+  if (tour.value?.cover_image) {
+    return tour.value.cover_image
+  }
+
   if (tourPhotos.value?.[0]) {
     return buildImageUrl(tourPhotos.value[0].urls.raw, { width: 1920, quality: 85 })
   }
@@ -109,11 +113,16 @@ const groupedSlots = computed(() => {
 })
 
 const isOwner = computed(() => {
-  return user.value && tour.value?.guides && user.value.id === tour.value.guides.user_id
+  return !!user.value && !!guideProfile.value && !!tour.value?.guides && user.value.id === tour.value.guides.user_id
 })
 
 async function fetchTourDetails() {
   loading.value = true
+  if (!supabase) {
+    loading.value = false
+    toast({ title: "supabase client unavailable", variant: "error" })
+    return
+  }
   const params = route.params
   const tourId = Array.isArray(params.id) ? params.id[0] : params.id
 
@@ -127,13 +136,11 @@ async function fetchTourDetails() {
     tour.value = tourData
 
     if (tour.value) {
-      const { data: slotsData } = await supabase
-        .from("time_slots")
-        .select("*")
-        .eq("tour_id", tour.value.id)
-        .eq("is_open", true)
-        .gte("start_utc", new Date().toISOString())
-        .order("start_utc", { ascending: true })
+      const { data: slotsData, error: slotsError } = await supabase.rpc("list_public_tour_slots", {
+        p_tour_id: tour.value.id,
+      })
+
+      if (slotsError) throw slotsError
 
       timeSlots.value = slotsData || []
     }
@@ -156,6 +163,7 @@ function selectSlot(slot) {
 
 async function submitBooking() {
   if (!selectedSlot.value) return
+  if (!supabase) return
   
   if (!bookingForm.guestName || !bookingForm.guestEmail) {
     toast({ title: "please fill in your name and email", variant: "error" })
@@ -165,42 +173,27 @@ async function submitBooking() {
   bookingLoading.value = true
   
   try {
-    const { data: slotCheck } = await supabase
-      .from("time_slots")
-      .select("capacity, is_open")
-      .eq("id", selectedSlot.value.id)
-      .single()
-
-    if (!slotCheck?.is_open || slotCheck.capacity < bookingForm.partySize) {
+    if (!selectedSlot.value.is_open || selectedSlot.value.remaining_capacity < bookingForm.partySize) {
       toast({ title: "sorry, this slot is no longer available", variant: "error" })
       showBookingModal.value = false
       await fetchTourDetails()
       return
     }
 
-    const editToken = crypto.randomUUID()
-
-    const { error: bookingError } = await supabase.from("bookings").insert({
-      time_slot_id: selectedSlot.value.id,
-      user_id: user.value?.id || null,
-      guest_name: bookingForm.guestName,
-      guest_email: bookingForm.guestEmail,
-      guest_phone: bookingForm.guestPhone || null,
-      party_size: bookingForm.partySize,
-      status: "confirmed",
-      edit_token: editToken,
+    const { data, error: bookingError } = await supabase.rpc("create_booking", {
+      p_slot_id: selectedSlot.value.id,
+      p_guest_name: bookingForm.guestName,
+      p_guest_email: bookingForm.guestEmail,
+      p_guest_phone: bookingForm.guestPhone || null,
+      p_party_size: bookingForm.partySize,
     })
 
     if (bookingError) throw bookingError
 
-    const newCapacity = slotCheck.capacity - bookingForm.partySize
-    await supabase
-      .from("time_slots")
-      .update({ 
-        capacity: newCapacity,
-        is_open: newCapacity > 0 
-      })
-      .eq("id", selectedSlot.value.id)
+    const booking = Array.isArray(data) ? data[0] : data
+    if (!booking?.booking_id || !booking?.manage_token) {
+      throw new Error("booking response was incomplete")
+    }
 
     toast({ 
       title: "booking confirmed!", 
@@ -217,6 +210,8 @@ async function submitBooking() {
     bookingForm.partySize = 1
 
     await fetchTourDetails()
+
+    await navigateTo(`/book/confirmation/${booking.booking_id}?token=${booking.manage_token}`)
 
   } catch (e) {
     console.error("booking error:", e)
@@ -310,12 +305,12 @@ const formatTime = (d) =>
                 </span>
                 <span class="flex items-center gap-1">
                   <MapPinIcon class="size-3.5" />
-                  {{ tour.guides?.city || "budapest" }}
-                </span>
-                <span class="flex items-center gap-1">
-                  <ClockIcon class="size-3.5" />
-                  ~3 hours
-                </span>
+                   {{ tour.guides?.city || "budapest" }}
+                 </span>
+                 <span class="flex items-center gap-1">
+                   <ClockIcon class="size-3.5" />
+                   ~{{ Math.max(1, Math.round((tour.duration_minutes || 180) / 60)) }} hours
+                 </span>
                 <span class="flex items-center gap-1">
                   <StarIcon class="size-3.5 fill-accent text-accent" />
                   4.9 (128)
@@ -424,7 +419,7 @@ const formatTime = (d) =>
                             <span class="text-sm font-medium">{{ formatTime(slot.start_utc) }}</span>
                           </div>
                           <div class="flex items-center gap-2">
-                            <span class="text-xs text-muted-foreground">{{ slot.capacity }} spots</span>
+                            <span class="text-xs text-muted-foreground">{{ slot.remaining_capacity }} spots left</span>
                             <CheckIcon v-if="selectedSlot?.id === slot.id" class="size-4 text-primary" />
                           </div>
                         </button>
@@ -499,7 +494,7 @@ const formatTime = (d) =>
               v-model.number="bookingForm.partySize"
               class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
             >
-              <option v-for="n in Math.min(selectedSlot?.capacity || 10, 10)" :key="n" :value="n">
+              <option v-for="n in Math.min(selectedSlot?.remaining_capacity || 10, 10)" :key="n" :value="n">
                 {{ n }} {{ n === 1 ? 'person' : 'people' }}
               </option>
             </select>
