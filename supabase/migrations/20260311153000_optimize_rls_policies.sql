@@ -55,3 +55,7 @@ with check (
   and email = coalesce((select auth.jwt()->>'email'), email)
   and user_type in ('tourist'::user_type, 'guide'::user_type)
 );
+
+drop index if exists public.idx_bookings_slot_status;
+drop index if exists public.idx_tours_guide;
+drop index if exists public.idx_time_slots_tour_start;
