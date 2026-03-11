@@ -15,10 +15,16 @@ useSeoMeta({ title: "manage booking" });
 
 const route = useRoute();
 const supabase = useSupabase();
+const bookingManageTokenStore = useBookingManageToken();
 const loading = ref(true);
 const booking = ref<Record<string, any> | null>(null);
 const validToken = ref(false);
 const cancelling = ref(false);
+const bookingId = computed(() => {
+  const value = route.params.id;
+  return Array.isArray(value) ? value[0] : value;
+});
+const manageToken = ref<string | null>(null);
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString("en-US", {
@@ -36,11 +42,24 @@ function formatTime(dateString: string) {
   });
 }
 
-const manageToken = computed(() => (typeof route.query.token === "string" ? route.query.token : null));
-
 const manageLink = computed(() => {
-  if (!booking.value || !manageToken.value) return "";
-  return `${window.location.origin}/book/confirmation/${booking.value.booking_id}?token=${manageToken.value}`;
+  if (!booking.value || !manageToken.value || !import.meta.client) {
+    return "";
+  }
+
+  const url = new URL(`/book/confirmation/${booking.value.booking_id}`, window.location.origin);
+  url.searchParams.set("token", manageToken.value);
+  return url.toString();
+});
+
+const hasPrivateLink = computed(() => !!manageToken.value && !!manageLink.value);
+
+const maskedManageLink = computed(() => {
+  if (!booking.value) {
+    return "";
+  }
+
+  return `/book/confirmation/${booking.value.booking_id}?token=hidden`;
 });
 
 async function fetchBooking() {
@@ -51,14 +70,14 @@ async function fetchBooking() {
     return;
   }
 
-  const bookingId = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
   try {
     const { data, error } = await supabase.rpc("get_booking_details", {
-      p_booking_id: bookingId,
-      p_manage_token: manageToken.value || null,
+      p_booking_id: bookingId.value,
+      p_manage_token: manageToken.value,
     });
 
-    if (error) throw error;
+    if (error) 
+throw error;
 
     const result = Array.isArray(data) ? data[0] : data;
     booking.value = result || null;
@@ -73,6 +92,11 @@ async function fetchBooking() {
 }
 
 async function copyLink() {
+  if (!manageLink.value) {
+    toast({ title: "private link unavailable", variant: "error" });
+    return;
+  }
+
   try {
     await navigator.clipboard.writeText(manageLink.value);
     toast({ title: "link copied", variant: "success" });
@@ -82,7 +106,8 @@ async function copyLink() {
 }
 
 async function cancelBooking() {
-  if (!supabase || !booking.value) return;
+  if (!supabase || !booking.value) 
+return;
 
   cancelling.value = true;
 
@@ -92,7 +117,8 @@ async function cancelBooking() {
       p_manage_token: manageToken.value,
     });
 
-    if (error) throw error;
+    if (error) 
+throw error;
 
     booking.value = data;
     await fetchBooking();
@@ -104,7 +130,18 @@ async function cancelBooking() {
   }
 }
 
-onMounted(fetchBooking);
+onMounted(() => {
+  const queryToken = typeof route.query.token === "string" ? route.query.token : null;
+
+  manageToken.value = queryToken || bookingManageTokenStore.read(bookingId.value);
+
+  if (queryToken) {
+    bookingManageTokenStore.write(bookingId.value, queryToken);
+    bookingManageTokenStore.scrubFromUrl();
+  }
+
+  fetchBooking();
+});
 </script>
 
 <template>
@@ -187,15 +224,15 @@ onMounted(fetchBooking);
             </CardContent>
           </Card>
 
-          <Card v-if="manageToken" class="mb-6 border-accent/20 bg-accent/5">
+          <Card v-if="hasPrivateLink" class="mb-6 border-accent/20 bg-accent/5">
             <CardContent class="p-4">
               <div class="flex items-start gap-3">
                 <ExternalLinkIcon class="mt-0.5 size-5 text-accent" />
                 <div class="flex-1">
                   <p class="font-medium text-accent-foreground">save this private link</p>
-                  <p class="mt-1 text-xs text-muted-foreground">this link is the secure way to manage your booking without an account</p>
+                  <p class="mt-1 text-xs text-muted-foreground">copy it somewhere safe if you want to reopen this booking without signing in</p>
                   <div class="mt-3 flex items-center gap-2">
-                    <code class="flex-1 truncate rounded-lg bg-background/50 px-3 py-2 text-xs">{{ manageLink }}</code>
+                    <code class="flex-1 truncate rounded-lg bg-background/50 px-3 py-2 text-xs">{{ maskedManageLink }}</code>
                     <Button class="shrink-0" size="sm" variant="outline" @click="copyLink">
                       <CopyIcon class="size-4" />
                     </Button>

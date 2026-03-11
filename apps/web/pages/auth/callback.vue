@@ -6,7 +6,7 @@ definePageMeta({ layout: "saas-auth" })
 
 const supabase = useSupabase()
 const route = useRoute()
-const { fetchUser, checkIsGuide, updatePassword } = useAuth()
+const { fetchUser, checkIsGuide } = useAuth()
 
 const loading = ref(true)
 const error = ref<string | null>(null)
@@ -20,19 +20,26 @@ onMounted(async () => {
     const code = typeof route.query.code === "string" ? route.query.code : undefined
     if (code) {
       const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
-      if (exchangeError) throw exchangeError
+      if (exchangeError) 
+throw exchangeError
     }
 
     const { data, error: authError } = await supabase.auth.getSession()
     
-    if (authError) throw authError
+    if (authError) 
+throw authError
     
     if (!data.session) {
       throw new Error("no session found - please try again")
     }
 
+    const next = typeof route.query.next === "string" ? route.query.next : null
+
     if (route.query.mode === "reset") {
-      navigateTo('/auth/reset-password', { replace: true })
+      navigateTo({
+        path: "/auth/reset-password",
+        query: next ? { next: resolveSafeRedirect(next, "/app/dashboard") } : undefined,
+      }, { replace: true })
       return
     }
 
@@ -42,7 +49,6 @@ onMounted(async () => {
 
     const isGuide = await checkIsGuide()
     const requestedIntent = typeof route.query.intent === "string" ? route.query.intent : null
-    const next = typeof route.query.next === "string" ? route.query.next : null
     
     if (isGuide) {
       navigateTo(resolveSafeRedirect(next, "/guides/dashboard"), { replace: true })

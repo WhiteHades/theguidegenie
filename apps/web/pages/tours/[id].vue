@@ -2,7 +2,6 @@
 import {
   MapPinIcon,
   UserIcon,
-  UsersIcon,
   ClockIcon,
   ArrowLeftIcon,
   StarIcon,
@@ -15,7 +14,6 @@ import {
   FootprintsIcon,
   CalendarIcon,
   CheckIcon,
-  InfoIcon,
   CameraIcon,
   UtensilsIcon,
   GlobeIcon,
@@ -30,6 +28,7 @@ const route = useRoute()
 const supabase = useSupabase()
 const { user, guideProfile } = useAuth()
 const { searchPhotos, buildImageUrl } = useUnsplash()
+const bookingManageToken = useBookingManageToken()
 
 const loading = ref(true)
 const tour = ref(null)
@@ -97,16 +96,33 @@ const priceDisplay = computed(() => {
 })
 
 const totalPrice = computed(() => {
-  if (isFreeOrTipBased.value) return 0
+  if (isFreeOrTipBased.value) 
+return 0
   const basePrice = tour.value?.base_price_cents ? tour.value.base_price_cents / 100 : 35
   return basePrice * bookingForm.partySize
 })
+
+function formatDate(d) {
+  return new Date(d).toLocaleDateString("en-us", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  })
+}
+
+function formatTime(d) {
+  return new Date(d).toLocaleTimeString("en-us", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+}
 
 const groupedSlots = computed(() => {
   const groups = {}
   timeSlots.value.forEach(slot => {
     const date = new Date(slot.start_utc).toLocaleDateString("en-us", { weekday: "short", month: "short", day: "numeric" })
-    if (!groups[date]) groups[date] = []
+    if (!groups[date]) 
+groups[date] = []
     groups[date].push(slot)
   })
   return groups
@@ -140,7 +156,8 @@ async function fetchTourDetails() {
         p_tour_id: tour.value.id,
       })
 
-      if (slotsError) throw slotsError
+      if (slotsError) 
+throw slotsError
 
       timeSlots.value = slotsData || []
     }
@@ -162,8 +179,10 @@ function selectSlot(slot) {
 }
 
 async function submitBooking() {
-  if (!selectedSlot.value) return
-  if (!supabase) return
+  if (!selectedSlot.value) 
+return
+  if (!supabase) 
+return
   
   if (!bookingForm.guestName || !bookingForm.guestEmail) {
     toast({ title: "please fill in your name and email", variant: "error" })
@@ -188,7 +207,8 @@ async function submitBooking() {
       p_party_size: bookingForm.partySize,
     })
 
-    if (bookingError) throw bookingError
+    if (bookingError) 
+throw bookingError
 
     const booking = Array.isArray(data) ? data[0] : data
     if (!booking?.booking_id || !booking?.manage_token) {
@@ -211,7 +231,8 @@ async function submitBooking() {
 
     await fetchTourDetails()
 
-    await navigateTo(`/book/confirmation/${booking.booking_id}?token=${booking.manage_token}`)
+    bookingManageToken.write(booking.booking_id, booking.manage_token)
+    await navigateTo(`/book/confirmation/${booking.booking_id}`)
 
   } catch (e) {
     console.error("booking error:", e)
@@ -230,18 +251,6 @@ useSeoMeta({
   title: () => tour.value?.title || "tour details",
   description: () => tour.value?.description || "book your tour",
 })
-
-const formatDate = (d) =>
-  new Date(d).toLocaleDateString("en-us", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  })
-const formatTime = (d) =>
-  new Date(d).toLocaleTimeString("en-us", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })
 </script>
 
 <template>
@@ -253,7 +262,7 @@ const formatTime = (d) =>
     <div v-else-if="!tour" class="flex min-h-screen flex-col items-center justify-center text-center">
       <h1 class="text-2xl font-bold">tour not found</h1>
       <p class="mt-2 text-muted-foreground">this tour may have been removed</p>
-      <Button @click="navigateTo('/tours')" class="mt-4 btn-bounce rounded-full" variant="outline">
+      <Button @click="navigateTo('/tours')" class="btn-bounce mt-4 rounded-full" variant="outline">
         browse all tours
       </Button>
     </div>
@@ -261,19 +270,19 @@ const formatTime = (d) =>
     <template v-else>
       <section class="relative h-[12vh] min-h-[100px]">
         <div class="absolute inset-0">
-          <img :src="heroImage" :alt="tour.title" class="h-full w-full object-cover" />
+          <img :src="heroImage" :alt="tour.title" class="size-full object-cover" />
           <div class="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
         </div>
       </section>
       
       <!-- Owner Banner -->
-      <div v-if="isOwner" class="bg-primary/10 border-b border-primary/20">
-        <div class="container py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div v-if="isOwner" class="border-b border-primary/20 bg-primary/10">
+        <div class="container flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div class="flex items-center gap-2 text-sm font-medium text-primary">
             <CheckCircleIcon class="size-4 shrink-0" />
             <span class="text-xs sm:text-sm">This is your tour listing</span>
           </div>
-          <Button variant="ghost" size="sm" class="h-8 text-xs hover:bg-primary/20 w-full sm:w-auto" @click="navigateTo('/guides/dashboard')">
+          <Button variant="ghost" size="sm" class="h-8 w-full text-xs hover:bg-primary/20 sm:w-auto" @click="navigateTo('/guides/dashboard')">
             Manage in Dashboard
           </Button>
         </div>
@@ -284,17 +293,17 @@ const formatTime = (d) =>
           <!-- Back button row -->
           <button
             @click="navigateTo('/tours')"
-            class="mb-3 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm text-muted-foreground hover:text-foreground hover:bg-muted smooth"
+            class="smooth mb-3 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             <ArrowLeftIcon class="size-4" />
             back to tours
           </button>
           
           <div class="flex flex-wrap items-start justify-between gap-3">
-            <div class="flex-1 min-w-0">
+            <div class="min-w-0 flex-1">
               <h1 class="font-display text-xl font-bold md:text-2xl">{{ tour.title }}</h1>
               <!-- All meta info - wrap better on mobile -->
-              <div class="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs sm:text-sm text-muted-foreground">
+              <div class="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted-foreground sm:text-sm">
                 <span class="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                   <component :is="categoryIcons[tour.category] || BadgeEuroIcon" class="size-3" />
                   {{ tour.category || 'paid' }}
@@ -317,7 +326,7 @@ const formatTime = (d) =>
                 </span>
               </div>
             </div>
-            <div class="text-right shrink-0">
+            <div class="shrink-0 text-right">
               <div class="text-xl font-bold" :class="isFreeOrTipBased ? 'text-accent' : ''">
                 {{ priceDisplay.main }}
               </div>
@@ -346,9 +355,9 @@ const formatTime = (d) =>
 
               <div>
                 <h2 class="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">highlights</h2>
-                <div class="grid grid-cols-1 xs:grid-cols-2 gap-2">
+                <div class="grid grid-cols-1 gap-2 xs:grid-cols-2">
                   <div v-for="h in defaultHighlights" :key="h.text" class="flex items-center gap-2 rounded-lg bg-muted/50 p-2.5 text-xs sm:text-sm">
-                    <component :is="h.icon" class="size-4 text-primary shrink-0" />
+                    <component :is="h.icon" class="size-4 shrink-0 text-primary" />
                     <span class="truncate">{{ h.text }}</span>
                   </div>
                 </div>
@@ -359,10 +368,10 @@ const formatTime = (d) =>
               <div>
                 <h2 class="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">meeting point</h2>
                 <div class="flex items-start gap-2 rounded-lg border border-border bg-card p-3">
-                  <MapPinIcon class="size-4 shrink-0 text-primary mt-0.5" />
+                  <MapPinIcon class="mt-0.5 size-4 shrink-0 text-primary" />
                   <div>
                     <p class="text-sm font-medium">{{ tour.meeting_point || "heroes' square (hősök tere)" }}</p>
-                    <p class="text-xs text-muted-foreground mt-0.5">look for the guide holding a red umbrella</p>
+                    <p class="mt-0.5 text-xs text-muted-foreground">look for the guide holding a red umbrella</p>
                   </div>
                 </div>
               </div>
@@ -376,41 +385,41 @@ const formatTime = (d) =>
                   <div class="flex size-10 items-center justify-center rounded-full bg-primary/10">
                     <UserIcon class="size-5 text-primary" />
                   </div>
-                  <div class="flex-1 min-w-0 overflow-hidden">
-                    <h3 class="text-sm font-semibold truncate">{{ tour.guides.name }}</h3>
-                    <p class="text-xs text-muted-foreground truncate max-w-full">{{ tour.guides.bio || "passionate local guide" }}</p>
+                  <div class="min-w-0 flex-1 overflow-hidden">
+                    <h3 class="truncate text-sm font-semibold">{{ tour.guides.name }}</h3>
+                    <p class="max-w-full truncate text-xs text-muted-foreground">{{ tour.guides.bio || "passionate local guide" }}</p>
                   </div>
-                  <ArrowLeftIcon class="size-4 text-muted-foreground rotate-180" />
+                  <ArrowLeftIcon class="size-4 rotate-180 text-muted-foreground" />
                 </NuxtLink>
               </div>
             </div>
 
             <div class="lg:col-span-2">
               <div class="sticky top-20 rounded-xl border border-border bg-card p-4 shadow-lg">
-                <h3 class="mb-3 font-semibold flex items-center gap-2">
+                <h3 class="mb-3 flex items-center gap-2 font-semibold">
                   <CalendarIcon class="size-4" />
                   select a time
                 </h3>
 
                 <div v-if="timeSlots.length === 0" class="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-                  <CalendarIcon class="size-6 mx-auto mb-2 opacity-50" />
+                  <CalendarIcon class="mx-auto mb-2 size-6 opacity-50" />
                   no slots available
-                  <p class="text-xs mt-1">check back soon!</p>
+                  <p class="mt-1 text-xs">check back soon!</p>
                 </div>
 
                 <ScrollArea v-else class="h-48">
                   <div class="space-y-3 pr-3">
                     <div v-for="(slots, date) in groupedSlots" :key="date">
-                      <div class="text-xs font-medium text-muted-foreground mb-1.5 sticky top-0 bg-card py-1">{{ date }}</div>
+                      <div class="sticky top-0 mb-1.5 bg-card py-1 text-xs font-medium text-muted-foreground">{{ date }}</div>
                       <div class="space-y-1.5">
                         <button
                           v-for="slot in slots"
                           :key="slot.id"
                           @click="!isOwner && selectSlot(slot)"
-                          class="w-full flex items-center justify-between rounded-lg border border-border p-2.5 text-left smooth"
+                          class="smooth flex w-full items-center justify-between rounded-lg border border-border p-2.5 text-left"
                           :class="[
                              selectedSlot?.id === slot.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : '',
-                             isOwner ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary hover:bg-primary/5'
+                             isOwner ? 'cursor-not-allowed opacity-50' : 'hover:border-primary hover:bg-primary/5'
                           ]"
                           :disabled="isOwner"
                         >
@@ -432,7 +441,7 @@ const formatTime = (d) =>
                   v-if="timeSlots.length > 0"
                   @click="showBookingModal = true" 
                   :disabled="!selectedSlot || isOwner"
-                  class="mt-3 w-full btn-bounce" 
+                  class="btn-bounce mt-3 w-full" 
                   size="default"
                 >
                   <template v-if="isOwner">
@@ -446,12 +455,12 @@ const formatTime = (d) =>
                 <!-- map -->
                 <div class="mt-4">
                   <h4 class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">meeting point</h4>
-                  <div class="rounded-lg border border-border overflow-hidden">
-                    <div ref="mapContainer" class="aspect-video min-h-[180px] max-h-56 bg-muted relative w-full">
+                  <div class="overflow-hidden rounded-lg border border-border">
+                    <div ref="mapContainer" class="relative aspect-video max-h-56 min-h-[180px] w-full bg-muted">
                       <iframe
-                        class="absolute inset-0 h-full w-full border-0"
+                        class="absolute inset-0 size-full border-0"
                         loading="lazy"
-                        :src="`https://www.openstreetmap.org/export/embed.html?bbox=19.0,47.47,19.1,47.52&layer=mapnik&marker=47.5,19.05`"
+                        src="https://www.openstreetmap.org/export/embed.html?bbox=19.0,47.47,19.1,47.52&layer=mapnik&marker=47.5,19.05"
                       />
                     </div>
                   </div>
@@ -520,7 +529,7 @@ const formatTime = (d) =>
           <Button 
             @click="submitBooking" 
             :disabled="bookingLoading || !bookingForm.guestName || !bookingForm.guestEmail"
-            class="w-full btn-bounce sm:w-auto"
+            class="btn-bounce w-full sm:w-auto"
           >
             <LoaderIcon v-if="bookingLoading" class="mr-2 size-4 animate-spin" />
             <CheckCircleIcon v-else class="mr-2 size-4" />

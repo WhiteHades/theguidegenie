@@ -20,6 +20,7 @@ useSeoMeta({ title: "book your tour" });
 const route = useRoute();
 const supabase = useSupabase();
 const { user } = useAuth();
+const bookingManageToken = useBookingManageToken();
 
 const loading = ref(true);
 const slotDetails = ref<Record<string, any> | null>(null);
@@ -50,7 +51,8 @@ const isFreeOrTipBased = computed(() => {
 });
 
 const pricePerPerson = computed(() => {
-  if (isFreeOrTipBased.value) return 0;
+  if (isFreeOrTipBased.value) 
+return 0;
   return slotDetails.value?.base_price_cents ? slotDetails.value.base_price_cents / 100 : 35;
 });
 
@@ -83,7 +85,8 @@ async function fetchSlotDetails() {
 
   try {
     const { data, error } = await supabase.rpc("get_public_slot_details", { p_slot_id: slotId });
-    if (error) throw error;
+    if (error) 
+throw error;
 
     const detail = Array.isArray(data) ? data[0] : data;
     if (!detail || detail.remaining_capacity < 1) {
@@ -120,7 +123,8 @@ const onSubmit = handleSubmit(async (formValues) => {
       p_party_size: formValues.party_size,
     });
 
-    if (error) throw error;
+    if (error) 
+throw error;
 
     const booking = Array.isArray(data) ? data[0] : data;
     if (!booking?.booking_id || !booking?.manage_token) {
@@ -128,7 +132,8 @@ const onSubmit = handleSubmit(async (formValues) => {
     }
 
     toast({ title: "booking confirmed!", variant: "success" });
-    await navigateTo(`/book/confirmation/${booking.booking_id}?token=${booking.manage_token}`);
+    bookingManageToken.write(booking.booking_id, booking.manage_token);
+    await navigateTo(`/book/confirmation/${booking.booking_id}`);
   } catch (error: any) {
     setFieldError("guest_name", error.message || "booking failed");
     toast({ title: "booking failed", description: error.message, variant: "error" });
@@ -142,7 +147,7 @@ onMounted(fetchSlotDetails);
   <div class="min-h-screen bg-gradient-to-b from-primary/5 to-background">
     <div class="container py-12">
       <div class="mx-auto max-w-2xl">
-        <button class="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground smooth" @click="navigateTo('/tours')">
+        <button class="smooth mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground" @click="navigateTo('/tours')">
           <ArrowLeftIcon class="size-4" />
           back to tours
         </button>
