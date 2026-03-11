@@ -11,7 +11,8 @@
     "postinstall": "nuxt prepare",
     "preview": "nuxt preview",
     "shadcn-vue": "pnpm dlx shadcn-vue@latest",
-    "typecheck": "nuxi typecheck"
+    "typecheck": "nuxi typecheck",
+    "test:unit": "vitest run"
   },
   "dependencies": {
     "@internationalized/date": "^3.10.0",
@@ -58,6 +59,7 @@
     "tsconfig": "workspace:*",
     "uuid": "^13.0.0",
     "vee-validate": "^4.15.0",
+    "vitest": "^3.2.4",
     "zod": "^3.25.76"
   }
 }
