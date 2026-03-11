@@ -31,7 +31,7 @@ if (!supabase) {
 
 const guide = computed(() => guideProfile.value);
 
-const { data: tours, refresh: refreshTours } = await useAsyncData("guide-tours", async () => {
+const { data: tours } = await useAsyncData("guide-tours", async () => {
   if (!supabase || !guide.value) 
 return [];
   const { data, error } = await supabase.rpc("get_guide_tours");
@@ -40,7 +40,7 @@ throw error;
   return data || [];
 });
 
-const { data: slots, refresh: refreshSlots } = await useAsyncData("guide-slots", async () => {
+const { data: slots } = await useAsyncData("guide-slots", async () => {
   if (!supabase || !guide.value) 
 return [];
   const { data, error } = await supabase.rpc("get_guide_slots");
@@ -49,7 +49,7 @@ throw error;
   return data || [];
 });
 
-const { data: bookings, refresh: refreshBookings } = await useAsyncData("guide-bookings", async () => {
+const { data: bookings } = await useAsyncData("guide-bookings", async () => {
   if (!supabase || !guide.value) 
 return [];
   const { data, error } = await supabase.rpc("get_guide_bookings");
