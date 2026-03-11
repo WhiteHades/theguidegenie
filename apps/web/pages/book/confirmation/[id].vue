@@ -102,6 +102,10 @@ return;
     if (error) 
 throw error;
 
+    await $fetch(`/api/bookings/${booking.value.booking_id}/session`, {
+      method: "DELETE",
+    });
+
     booking.value = data;
     await fetchBooking();
     toast({ title: "booking cancelled", variant: "success" });
