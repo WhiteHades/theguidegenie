@@ -57,5 +57,9 @@ with check (
 );
 
 drop index if exists public.idx_bookings_slot_status;
+drop index if exists public.idx_bookings_time_slot;
+drop index if exists public.idx_bookings_user;
+drop index if exists public.idx_guides_user;
 drop index if exists public.idx_tours_guide;
 drop index if exists public.idx_time_slots_tour_start;
+drop index if exists public.idx_time_slots_guide_start;
