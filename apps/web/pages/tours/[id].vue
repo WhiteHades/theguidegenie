@@ -28,7 +28,6 @@ const route = useRoute()
 const supabase = useSupabase()
 const { user, guideProfile } = useAuth()
 const { searchPhotos, buildImageUrl } = useUnsplash()
-const bookingManageToken = useBookingManageToken()
 
 const loading = ref(true)
 const tour = ref(null)
@@ -215,6 +214,13 @@ throw bookingError
       throw new Error("booking response was incomplete")
     }
 
+    await $fetch(`/api/bookings/${booking.booking_id}/session`, {
+      method: "POST",
+      body: {
+        token: booking.manage_token,
+      },
+    })
+
     toast({ 
       title: "booking confirmed!", 
       description: `you're booked for ${formatDate(selectedSlot.value.start_utc)}`,
@@ -231,7 +237,6 @@ throw bookingError
 
     await fetchTourDetails()
 
-    bookingManageToken.write(booking.booking_id, booking.manage_token)
     await navigateTo(`/book/confirmation/${booking.booking_id}`)
 
   } catch (e) {
