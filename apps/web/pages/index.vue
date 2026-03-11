@@ -110,7 +110,7 @@ const galleryImages = computed(() => {
     }));
   }
   // Fallback images if API fails
-  return fallbackImages.slice(1, 7).map((src, i) => ({
+  return fallbackImages.slice(1, 7).map((src) => ({
     src,
     alt: "budapest landmark",
     photographer: "Unsplash",
@@ -130,12 +130,12 @@ return;
   
   // Use CSS-based animations as alternative to GSAP for reliability
   const animateOnScroll = () => {
-    const elements = document.querySelectorAll('.animate-on-scroll');
+    const elements = document.querySelectorAll<HTMLElement>('[data-reveal="true"]');
     elements.forEach((el) => {
       const rect = el.getBoundingClientRect();
       const isVisible = rect.top < window.innerHeight * 0.85;
       if (isVisible) {
-        el.classList.add('animate-visible');
+        el.dataset.visible = 'true';
       }
     });
   };
@@ -146,15 +146,6 @@ return;
   // On scroll
   window.addEventListener('scroll', animateOnScroll, { passive: true });
   
-  // Animate hero immediately
-  const heroContent = document.querySelector('.hero-content');
-  const heroStats = document.querySelector('.hero-stats');
-  if (heroContent) 
-heroContent.classList.add('animate-visible');
-  setTimeout(() => {
-    if (heroStats) 
-heroStats.classList.add('animate-visible');
-  }, 300);
 }
 
 const stats = [
@@ -210,33 +201,33 @@ const steps = [
                 <StarIcon class="size-3 fill-current" />
                 rated 4.9/5 by travelers
               </span>
-              <span class="brush-edge-box absolute inset-0 z-0 rotate-1 -skew-x-3 scale-105 bg-amber-400"></span>
+              <span data-brush-edge class="absolute inset-0 z-0 rotate-1 -skew-x-3 scale-105 bg-amber-400"></span>
             </span>
           </div>
 
           <h1 class="font-display text-4xl font-bold leading-[1.3] text-white sm:text-5xl md:text-6xl lg:text-7xl">
             <span class="relative inline-block px-2">
               <span class="relative z-10">discover</span>
-              <span class="brush-edge-box absolute inset-0 z-0 -rotate-1 -skew-x-2 scale-110 bg-black/80"></span>
+              <span data-brush-edge class="absolute inset-0 z-0 -rotate-1 -skew-x-2 scale-110 bg-black/80"></span>
             </span><br />
             <span class="relative mt-2 inline-block px-2">
               <span class="relative z-10 text-accent">budapest</span>
-              <span class="brush-edge-box absolute inset-0 z-0 rotate-1 -skew-x-3 scale-110 bg-black shadow-xl"></span>
+              <span data-brush-edge class="absolute inset-0 z-0 rotate-1 -skew-x-3 scale-110 bg-black shadow-xl"></span>
             </span><br />
             <span class="relative mt-1 inline-block px-2">
               <span class="relative z-10">with locals</span>
-              <span class="brush-edge-box -rotate-0.5 absolute inset-0 z-0 -skew-x-1 scale-105 bg-black/80"></span>
+              <span data-brush-edge class="absolute inset-0 z-0 rotate-[-0.5deg] -skew-x-1 scale-105 bg-black/80"></span>
             </span>
           </h1>
 
           <p class="mt-8 max-w-lg text-base font-medium leading-loose text-white sm:text-lg">
             <span class="relative my-1 inline-block box-decoration-clone px-2 py-1">
               <span class="relative z-10">authentic experiences, hidden gems, unforgettable stories.</span>
-              <span class="brush-edge-box absolute inset-0 z-0 -skew-x-1 scale-y-110 bg-black/60"></span>
+              <span data-brush-edge class="absolute inset-0 z-0 -skew-x-1 scale-y-110 bg-black/60"></span>
             </span><br class="hidden sm:block" />
             <span class="relative my-1 inline-block box-decoration-clone px-2 py-1 delay-100">
                <span class="relative z-10">join 2,500+ travelers who found the real budapest.</span>
-               <span class="brush-edge-box absolute inset-0 z-0 skew-x-1 scale-y-110 bg-black/60"></span>
+               <span data-brush-edge class="absolute inset-0 z-0 skew-x-1 scale-y-110 bg-black/60"></span>
             </span>
           </p>
 
@@ -264,7 +255,7 @@ const steps = [
 
         <!-- floating stats -->
         <div
-          class="hero-stats mt-10 grid max-w-2xl grid-cols-2 gap-3 rounded-2xl bg-gray-900/95 p-4 shadow-2xl ring-1 ring-white/10 backdrop-blur-xl sm:mt-16 sm:grid-cols-4 sm:gap-4 sm:p-6"
+          class="mt-10 grid max-w-2xl grid-cols-2 gap-3 rounded-2xl bg-gray-900/95 p-4 shadow-2xl ring-1 ring-white/10 backdrop-blur-xl sm:mt-16 sm:grid-cols-4 sm:gap-4 sm:p-6"
         >
           <div v-for="stat in stats" :key="stat.label" class="text-center">
             <div class="text-xl font-bold text-white sm:text-2xl md:text-3xl">
@@ -318,7 +309,7 @@ const steps = [
     <!-- Photo gallery section -->
     <section class="relative -mt-16 bg-background py-10 pt-20 sm:py-20 sm:pt-28 md:-mt-24">
       <div class="container">
-        <div class="animate-on-scroll mb-8 max-w-xl translate-y-8 opacity-0 transition-all duration-700 ease-out sm:mb-12">
+        <div data-reveal="true" class="mb-8 max-w-xl translate-y-8 opacity-0 transition-all duration-700 ease-out sm:mb-12">
           <Badge variant="info" class="mb-4">
             <MapPinIcon class="size-3" />
             explore
@@ -333,7 +324,8 @@ const steps = [
         <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
           <div class="space-y-3 sm:space-y-4">
             <div
-              class="animate-on-scroll gallery-item gallery-hover group relative aspect-[4/5] translate-y-8 rounded-xl opacity-0 transition-all duration-700 ease-out sm:rounded-2xl"
+              data-reveal="true"
+              class="group relative aspect-[4/5] translate-y-8 rounded-xl opacity-0 transition-all duration-700 ease-out sm:rounded-2xl"
             >
               <img
                 :src="galleryImages[0]?.src || fallbackImages[1]"
@@ -357,7 +349,8 @@ const steps = [
               </div>
             </div>
             <div
-              class="animate-on-scroll gallery-item gallery-hover group relative aspect-[4/3] translate-y-8 rounded-xl opacity-0 transition-all delay-100 duration-700 ease-out sm:rounded-2xl"
+              data-reveal="true"
+              class="group relative aspect-[4/3] translate-y-8 rounded-xl opacity-0 transition-all delay-100 duration-700 ease-out sm:rounded-2xl"
             >
               <img
                 :src="galleryImages[1]?.src || fallbackImages[2]"
@@ -382,7 +375,8 @@ const steps = [
           </div>
           <div class="space-y-3 sm:space-y-4 md:pt-12">
             <div
-              class="animate-on-scroll gallery-item group relative aspect-square translate-y-8 overflow-hidden rounded-xl opacity-0 transition-all delay-150 duration-700 ease-out sm:rounded-2xl"
+              data-reveal="true"
+              class="group relative aspect-square translate-y-8 overflow-hidden rounded-xl opacity-0 transition-all delay-150 duration-700 ease-out sm:rounded-2xl"
             >
               <img
                 :src="galleryImages[2]?.src || fallbackImages[3]"
@@ -405,7 +399,8 @@ const steps = [
               </div>
             </div>
             <div
-              class="animate-on-scroll gallery-item group relative aspect-[4/5] translate-y-8 overflow-hidden rounded-xl opacity-0 transition-all delay-200 duration-700 ease-out sm:rounded-2xl"
+              data-reveal="true"
+              class="group relative aspect-[4/5] translate-y-8 overflow-hidden rounded-xl opacity-0 transition-all delay-200 duration-700 ease-out sm:rounded-2xl"
             >
               <img
                 :src="galleryImages[3]?.src || fallbackImages[4]"
@@ -430,7 +425,9 @@ const steps = [
           </div>
           <div class="hidden space-y-3 sm:space-y-4 md:block">
             <div
-              class="animate-on-scroll gallery-item delay-250 group relative aspect-[4/3] translate-y-8 overflow-hidden rounded-xl opacity-0 transition-all duration-700 ease-out sm:rounded-2xl"
+              data-reveal="true"
+              class="group relative aspect-[4/3] translate-y-8 overflow-hidden rounded-xl opacity-0 transition-all duration-700 ease-out sm:rounded-2xl"
+              style="transition-delay: 250ms"
             >
               <img
                 :src="galleryImages[4]?.src || fallbackImages[5]"
@@ -453,7 +450,8 @@ const steps = [
               </div>
             </div>
             <div
-              class="animate-on-scroll gallery-item group relative aspect-[4/5] translate-y-8 overflow-hidden rounded-xl opacity-0 transition-all delay-300 duration-700 ease-out sm:rounded-2xl"
+              data-reveal="true"
+              class="group relative aspect-[4/5] translate-y-8 overflow-hidden rounded-xl opacity-0 transition-all delay-300 duration-700 ease-out sm:rounded-2xl"
             >
               <img
                 :src="galleryImages[5]?.src || fallbackImages[6]"
@@ -483,7 +481,7 @@ const steps = [
     <!-- how it works -->
     <section class="relative border-y border-border bg-muted/30 py-10 sm:py-20">
       <div class="container">
-        <div class="animate-on-scroll mb-12 translate-y-8 text-center opacity-0 transition-all duration-700 ease-out sm:mb-16">
+          <div data-reveal="true" class="mb-12 translate-y-8 text-center opacity-0 transition-all duration-700 ease-out sm:mb-16">
           <Badge variant="info" class="mb-4">simple</Badge>
           <h2 class="font-display text-2xl font-bold sm:text-3xl md:text-4xl">
             book in 3 steps
@@ -492,7 +490,7 @@ const steps = [
 
         <div class="mx-auto flex max-w-4xl flex-col gap-8 sm:flex-row sm:items-start sm:gap-4">
           <!-- Step 1 -->
-          <div class="animate-on-scroll relative z-10 flex flex-1 translate-y-8 flex-col items-center text-center opacity-0 transition-all duration-700 ease-out">
+          <div data-reveal="true" class="relative z-10 flex flex-1 translate-y-8 flex-col items-center text-center opacity-0 transition-all duration-700 ease-out">
             <div class="mx-auto flex size-16 items-center justify-center rounded-2xl border border-border bg-card text-primary shadow-sm transition-all duration-300 hover:scale-110 hover:bg-primary/10 sm:size-20">
               <component :is="steps[0].icon" class="size-6 sm:size-8" />
             </div>
@@ -506,7 +504,7 @@ const steps = [
           </div>
 
           <!-- Step 2 -->
-          <div class="animate-on-scroll relative z-10 flex flex-1 translate-y-8 flex-col items-center text-center opacity-0 transition-all delay-100 duration-700 ease-out">
+          <div data-reveal="true" class="relative z-10 flex flex-1 translate-y-8 flex-col items-center text-center opacity-0 transition-all delay-100 duration-700 ease-out">
             <div class="mx-auto flex size-16 items-center justify-center rounded-2xl border border-border bg-card text-primary shadow-sm transition-all duration-300 hover:scale-110 hover:bg-primary/10 sm:size-20">
               <component :is="steps[1].icon" class="size-6 sm:size-8" />
             </div>
@@ -520,7 +518,7 @@ const steps = [
           </div>
 
           <!-- Step 3 -->
-           <div class="animate-on-scroll relative z-10 flex flex-1 translate-y-8 flex-col items-center text-center opacity-0 transition-all delay-200 duration-700 ease-out">
+           <div data-reveal="true" class="relative z-10 flex flex-1 translate-y-8 flex-col items-center text-center opacity-0 transition-all delay-200 duration-700 ease-out">
             <div class="mx-auto flex size-16 items-center justify-center rounded-2xl border border-border bg-card text-primary shadow-sm transition-all duration-300 hover:scale-110 hover:bg-primary/10 sm:size-20">
               <component :is="steps[2].icon" class="size-6 sm:size-8" />
             </div>
@@ -535,7 +533,7 @@ const steps = [
     <!-- featured tours -->
     <section v-if="featuredTours.length" class="border-t border-border bg-muted/30 py-10 sm:py-20">
       <div class="container">
-        <div class="animate-on-scroll mb-8 flex translate-y-8 flex-col gap-4 opacity-0 transition-all duration-700 ease-out sm:mb-12 sm:flex-row sm:items-end sm:justify-between">
+        <div data-reveal="true" class="mb-8 flex translate-y-8 flex-col gap-4 opacity-0 transition-all duration-700 ease-out sm:mb-12 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <Badge variant="info" class="mb-4">featured</Badge>
             <h2 class="font-display text-2xl font-bold sm:text-3xl md:text-4xl">
@@ -551,7 +549,8 @@ const steps = [
           <Card
             v-for="(tour, idx) in featuredTours.slice(0, 3)"
             :key="tour.id"
-            class="animate-on-scroll tour-card group translate-y-8 cursor-pointer overflow-hidden opacity-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+            data-reveal="true"
+            class="group translate-y-8 cursor-pointer overflow-hidden opacity-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
             :style="{ transitionDelay: `${idx * 100}ms` }"
             @click="navigateTo(`/tours/${tour.id}`)"
           >
@@ -631,19 +630,18 @@ const steps = [
 </template>
 
 <style scoped>
-.animate-on-scroll.animate-visible {
+[data-reveal="true"][data-visible="true"] {
   opacity: 1 !important;
   transform: translateY(0) !important;
 }
 
-.hero-content,
-.hero-stats {
+[data-reveal="true"] {
   transition-property: opacity, transform !important;
   transition-duration: 0.7s !important;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-.brush-edge-box {
+[data-brush-edge] {
   clip-path: polygon(
     2% 0%, 15% 2%, 25% 0%, 35% 2%, 45% 0%, 55% 2%, 65% 0%, 75% 2%, 85% 0%, 95% 2%, 100% 0%,
     98% 15%, 100% 25%, 98% 35%, 100% 45%, 98% 55%, 100% 65%, 98% 75%, 100% 85%, 98% 95%, 100% 100%,
