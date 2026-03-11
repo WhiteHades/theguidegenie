@@ -24,7 +24,7 @@ const form = useForm({
   validateOnMount: false,
 });
 
-const { handleSubmit, isSubmitting, errors, setFieldError } = form;
+const { handleSubmit, isSubmitting, setFieldError } = form;
 
 const onSubmit = handleSubmit(async (values) => {
   try {
