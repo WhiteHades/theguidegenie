@@ -1,4 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  buildBookingManageLink,
+  clearBookingManageSession,
+  getBookingManageSession,
+  setBookingManageSession,
+} from "./booking-session";
 
 const h3 = vi.hoisted(() => ({
   deleteCookie: vi.fn(),
@@ -9,13 +15,6 @@ const h3 = vi.hoisted(() => ({
 }));
 
 vi.mock("h3", () => h3);
-
-import {
-  buildBookingManageLink,
-  clearBookingManageSession,
-  getBookingManageSession,
-  setBookingManageSession,
-} from "./booking-session";
 
 describe("booking-session", () => {
   const event = {} as never;
