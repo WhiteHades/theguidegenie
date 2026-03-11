@@ -1,5 +1,5 @@
 import { getRouterParam } from "h3";
-import { buildBookingManageLink, clearBookingManageSession, getBookingManageSession } from "@/server/utils/booking-session";
+import { clearBookingManageSession, getBookingManageSession } from "@/server/utils/booking-session";
 import { createServerSupabaseClient } from "@/server/utils/supabase";
 
 export default defineEventHandler(async (event) => {
@@ -27,6 +27,6 @@ export default defineEventHandler(async (event) => {
 
   return {
     booking,
-    manageLink: booking && manageToken ? buildBookingManageLink(event, bookingId, manageToken) : null,
+    hasManageSession: !!booking && !!manageToken,
   };
 });
