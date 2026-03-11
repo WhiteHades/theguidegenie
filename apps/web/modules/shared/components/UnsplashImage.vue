@@ -42,10 +42,7 @@
 </script>
 
 <template>
-  <div
-    class="unsplash-image group relative overflow-hidden"
-    :class="props.class"
-  >
+  <div class="group relative overflow-hidden" :class="props.class">
     <img
       :src="imageUrl"
       :alt="photo.alt_description || photo.description || 'unsplash photo'"
