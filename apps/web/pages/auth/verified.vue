@@ -1,3 +1,12 @@
 <script setup lang="ts">
-await navigateTo('/auth/callback', { replace: true })
+const route = useRoute();
+
+await navigateTo(
+  {
+    path: "/auth/callback",
+    query: route.query,
+    hash: route.hash,
+  },
+  { replace: true },
+);
 </script>

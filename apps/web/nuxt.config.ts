@@ -19,7 +19,6 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
     public: {
       siteUrl: baseUrl,
       supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
@@ -53,11 +52,6 @@ export default defineNuxtConfig({
     { path: "@/modules/shared/components", pathPrefix: false },
     { path: "@/modules/marketing/shared/components", pathPrefix: false },
     { path: "@/modules/marketing/home/components", pathPrefix: false },
-    { path: "@/modules/marketing/blog/components", pathPrefix: false },
-    { path: "@/modules/marketing/faq/components", pathPrefix: false },
-    { path: "@/modules/marketing/changelog/components", pathPrefix: false },
-    { path: "@/modules/marketing/content/components", pathPrefix: false },
-    { path: "@/modules/marketing/pricing/components", pathPrefix: false },
   ],
 
   app: {
@@ -146,6 +140,18 @@ export default defineNuxtConfig({
       // All routes - security headers
       '/**': {
         headers: {
+          'Content-Security-Policy': [
+            "default-src 'self'",
+            "base-uri 'self'",
+            "frame-ancestors 'none'",
+            "form-action 'self'",
+            "object-src 'none'",
+            "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://plausible.io https://analytics.eu.umami.is https://api.pirsch.io https://va.vercel-scripts.com https://vitals.vercel-insights.com",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "img-src 'self' data: blob: https:",
+            "font-src 'self' data: https://fonts.gstatic.com",
+            "connect-src 'self' https://*.supabase.co https://api.unsplash.com https://images.unsplash.com https://www.google-analytics.com https://region1.google-analytics.com https://plausible.io https://analytics.eu.umami.is https://api.pirsch.io https://va.vercel-scripts.com https://vitals.vercel-insights.com",
+          ].join('; '),
           'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
           'X-Content-Type-Options': 'nosniff',
           'X-Frame-Options': 'DENY',

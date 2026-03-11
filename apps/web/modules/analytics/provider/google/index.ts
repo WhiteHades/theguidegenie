@@ -26,6 +26,7 @@ export const useAnalytics = () => {
               // eslint-disable-next-line prefer-rest-params
               (window as any).dataLayer.push(arguments);
             }
+            (window as any).gtag = gtag;
             // @ts-expect-error - gtag is defined globally
             gtag("js", new Date());
             // @ts-expect-error - gtag is defined globally
@@ -37,11 +38,11 @@ export const useAnalytics = () => {
   };
 
   const trackEvent = (event: string, data?: Record<string, any>) => {
-    if (typeof window === "undefined" || !(window as any).gta) {
+    if (typeof window === "undefined" || !(window as any).gtag) {
       return;
     }
 
-    (window as any).gta("event", event, data);
+    (window as any).gtag("event", event, data);
   };
 
   return {
