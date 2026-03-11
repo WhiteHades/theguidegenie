@@ -4,6 +4,7 @@ import { toast } from "@/modules/ui/components/toast";
 
 const props = defineProps<{
   redirectTo?: string;
+  userType?: "tourist" | "guide";
 }>();
 
 // guard useAuth for ssr to avoid issues when supabase is not available
@@ -17,10 +18,10 @@ const signinWithOAuth = (() => {
 })();
 const loadingProvider = ref<string | null>(null);
 
-async function handleOAuth(provider: "google" | "apple") {
+async function handleOAuth(provider: "google") {
   loadingProvider.value = provider;
   try {
-    await signinWithOAuth(provider, props.redirectTo);
+    await signinWithOAuth(provider, props.redirectTo, props.userType);
   } catch (e: any) {
     toast({
       title: `${provider} login failed`,

@@ -12,6 +12,7 @@ definePageMeta({ layout: "saas-auth" });
 useSeoMeta({ title: "reset password" });
 
 const { requestPasswordReset } = useAuth();
+const route = useRoute();
 
 const formSchema = toTypedSchema(
   z.object({
@@ -30,7 +31,7 @@ const sentEmail = ref("");
 
 const onSubmit = handleSubmit(async (values) => {
   try {
-    await requestPasswordReset(values.email);
+    await requestPasswordReset(values.email, typeof route.query.redirect === "string" ? route.query.redirect : "/guides/dashboard");
     sentEmail.value = values.email;
     emailSent.value = true;
     toast({ title: "reset link sent!", variant: "success" });

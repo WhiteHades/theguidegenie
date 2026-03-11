@@ -15,12 +15,20 @@ import { toast } from "@/modules/ui/components/toast"
 definePageMeta({ layout: "saas-auth" })
 useSeoMeta({ title: "complete your profile" })
 
-const { user, fetchGuideProfile } = useAuth()
-const supabase = useSupabase()
+const route = useRoute()
+const { user, guideProfile, completeGuideOnboarding } = useAuth()
 
-// redirect if not logged in
+await callOnce(() => useAuth().fetchUser())
+
 if (!user.value) {
-  navigateTo('/guides/login')
+  await navigateTo('/guides/login', {
+    replace: true,
+    query: { redirect: route.fullPath },
+  })
+}
+
+if (guideProfile.value) {
+  await navigateTo('/guides/dashboard', { replace: true })
 }
 
 const formSchema = toTypedSchema(
@@ -56,26 +64,7 @@ const onSubmit = handleSubmit(async (values) => {
   }
 
   try {
-    const { error } = await supabase
-      .from("guides")
-      .insert({
-        user_id: user.value.id,
-        name: values.name,
-        city: values.city,
-        contact_email: values.contact_email,
-        phone: values.phone || null,
-        bio: values.bio || null,
-      })
-
-    if (error) {
-      if (error.message.includes('duplicate')) {
-        throw new Error('you already have a guide profile')
-      }
-      throw error
-    }
-
-    // refresh guide profile in auth state
-    await fetchGuideProfile()
+    await completeGuideOnboarding(values)
 
     success.value = true
     toast({ title: "profile created!", description: "redirecting to dashboard...", variant: "success" })

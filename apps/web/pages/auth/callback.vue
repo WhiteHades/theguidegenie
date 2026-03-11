@@ -5,14 +5,24 @@ import { toast } from "@/modules/ui/components/toast"
 definePageMeta({ layout: "saas-auth" })
 
 const supabase = useSupabase()
-const { fetchUser, checkIsGuide } = useAuth()
+const route = useRoute()
+const { fetchUser, checkIsGuide, updatePassword } = useAuth()
 
 const loading = ref(true)
 const error = ref<string | null>(null)
 
 onMounted(async () => {
   try {
-    // supabase handles the token exchange automatically from URL hash
+    if (!supabase) {
+      throw new Error("supabase client not available")
+    }
+
+    const code = typeof route.query.code === "string" ? route.query.code : undefined
+    if (code) {
+      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+      if (exchangeError) throw exchangeError
+    }
+
     const { data, error: authError } = await supabase.auth.getSession()
     
     if (authError) throw authError
@@ -21,18 +31,25 @@ onMounted(async () => {
       throw new Error("no session found - please try again")
     }
 
-    // fetch user profile
-    await fetchUser()
+    if (route.query.mode === "reset") {
+      navigateTo('/auth/reset-password', { replace: true })
+      return
+    }
+
+    const authUser = await fetchUser()
     
     toast({ title: "welcome!", variant: "success" })
 
-    // check user type and redirect appropriately
     const isGuide = await checkIsGuide()
+    const requestedIntent = typeof route.query.intent === "string" ? route.query.intent : null
+    const next = typeof route.query.next === "string" ? route.query.next : null
     
     if (isGuide) {
-      navigateTo("/guides/dashboard")
+      navigateTo(resolveSafeRedirect(next, "/guides/dashboard"), { replace: true })
+    } else if (requestedIntent === "guide" || authUser?.user_type === "guide") {
+      navigateTo("/guides/onboarding", { replace: true })
     } else {
-      navigateTo("/tours")
+      navigateTo(resolveSafeRedirect(next, "/app/dashboard"), { replace: true })
     }
   } catch (e: any) {
     console.error("oauth callback error:", e)
@@ -63,11 +80,10 @@ onMounted(async () => {
         <Button variant="outline" @click="navigateTo('/auth/tourist/login')">
           try again
         </Button>
-        <Button @click="navigateTo('/tours')">
-          browse tours
+        <Button @click="navigateTo('/')">
+          back home
         </Button>
       </div>
     </template>
   </div>
 </template>
-

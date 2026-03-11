@@ -14,11 +14,12 @@ import { toast } from "@/modules/ui/components/toast";
 definePageMeta({ layout: "saas-auth" });
 useSeoMeta({ title: "create account" });
 
+const route = useRoute();
 const { signup, isAuthenticated } = useAuth();
 
 watchEffect(() => {
   if (isAuthenticated.value) {
-    navigateTo("/tours");
+    navigateTo(resolveSafeRedirect(typeof route.query.redirect === "string" ? route.query.redirect : null, "/app/dashboard"));
   }
 });
 
@@ -47,13 +48,14 @@ const onSubmit = handleSubmit(async (values) => {
       password: values.password,
       name: values.name,
       userType: "tourist",
+      redirectTo: typeof route.query.redirect === "string" ? route.query.redirect : "/app/dashboard",
     });
     toast({
       title: "welcome to the guide genie!",
       description: "start exploring tours",
       variant: "success",
     });
-    navigateTo("/tours");
+    navigateTo(resolveSafeRedirect(typeof route.query.redirect === "string" ? route.query.redirect : null, "/app/dashboard"));
   } catch (e: any) {
     setFieldError("email", e.message || "signup failed");
     toast({ title: "signup failed", description: e.message, variant: "error" });
@@ -62,9 +64,9 @@ const onSubmit = handleSubmit(async (values) => {
 
 const perks = [
   "instant booking confirmation",
-  "message guides directly",
-  "save favorite tours",
-  "exclusive member deals",
+  "manage all your bookings",
+  "secure booking history",
+  "quick rebooking",
 ];
 </script>
 
@@ -98,7 +100,7 @@ const perks = [
       </Card>
     </div>
 
-    <SocialLoginButtons />
+    <SocialLoginButtons redirect-to="/app/dashboard" user-type="tourist" />
 
     <div class="relative">
       <Separator />

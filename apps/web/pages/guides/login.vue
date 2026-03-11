@@ -6,7 +6,8 @@ import { toast } from "@/modules/ui/components/toast";
 definePageMeta({ layout: "saas-auth" });
 useSeoMeta({ title: "guide login" });
 
-const { signin, checkIsGuide, loading: authLoading } = useAuth();
+const route = useRoute();
+const { signin, checkIsGuide } = useAuth();
 
 const formSchema = toTypedSchema(
   z.object({
@@ -30,7 +31,11 @@ const onSubmit = handleSubmit(async (values) => {
     await signin(values.email, values.password);
     const isGuide = await checkIsGuide();
     toast({ title: "welcome back!", variant: "success" });
-    navigateTo(isGuide ? "/guides/dashboard" : "/guides/onboarding");
+    navigateTo(
+      isGuide
+        ? resolveSafeRedirect(typeof route.query.redirect === "string" ? route.query.redirect : null, "/guides/dashboard")
+        : "/guides/onboarding",
+    );
   } catch (e: any) {
     setFieldError("email", e.message || "invalid credentials");
     toast({ title: "login failed", description: e.message, variant: "error" });
@@ -57,7 +62,7 @@ const onSubmit = handleSubmit(async (values) => {
       </p>
     </div>
 
-    <SocialLoginButtons redirect-to="/guides/dashboard" />
+    <SocialLoginButtons redirect-to="/guides/dashboard" user-type="guide" />
 
     <div class="relative">
       <Separator />

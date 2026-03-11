@@ -6,11 +6,12 @@ import { toast } from "@/modules/ui/components/toast";
 definePageMeta({ layout: "saas-auth" });
 useSeoMeta({ title: "sign in" });
 
+const route = useRoute();
 const { signin, isAuthenticated } = useAuth();
 
 watchEffect(() => {
   if (isAuthenticated.value) {
-    navigateTo("/tours");
+    navigateTo(resolveSafeRedirect(typeof route.query.redirect === "string" ? route.query.redirect : null, "/app/dashboard"));
   }
 });
 
@@ -39,7 +40,7 @@ const onSubmit = handleSubmit(async (values) => {
     if (user.user_type === "guide") {
       navigateTo("/guides/dashboard");
     } else {
-      navigateTo("/tours");
+      navigateTo(resolveSafeRedirect(typeof route.query.redirect === "string" ? route.query.redirect : null, "/app/dashboard"));
     }
   } catch (e: any) {
     setFieldError("email", e.message || "invalid credentials");
@@ -65,7 +66,7 @@ const onSubmit = handleSubmit(async (values) => {
       </p>
     </div>
 
-    <SocialLoginButtons />
+    <SocialLoginButtons redirect-to="/app/dashboard" user-type="tourist" />
 
     <div class="relative">
       <Separator />
@@ -101,7 +102,7 @@ const onSubmit = handleSubmit(async (values) => {
           <div class="flex items-center justify-between">
             <FormLabel>password</FormLabel>
             <Button variant="link" size="sm" class="inline h-auto p-0 text-xs text-muted-foreground" as-child>
-              <NuxtLink to="/auth/forgot-password">forgot password?</NuxtLink>
+              <NuxtLink to="/guides/forgot-password?redirect=/app/dashboard">forgot password?</NuxtLink>
             </Button>
           </div>
           <div class="relative">

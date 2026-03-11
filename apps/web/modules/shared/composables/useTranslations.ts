@@ -1,11 +1,30 @@
-import { useI18n } from "#imports";
+type NumberStyle = "currency" | "decimal" | "percent";
 
-// Import default locale
-import type enLocale from "@/locales/en.json";
+function createFormatter(style: NumberStyle) {
+  return (value: number, options: Intl.NumberFormatOptions = {}) => {
+    const currency = options.currency || (style === "currency" ? "EUR" : undefined);
 
-/**
- * This is the equivalent of `useI18n`, execpt it adds types for the translation keys.
- */
+    return new Intl.NumberFormat("en", {
+      style,
+      currency,
+      maximumFractionDigits: style === "decimal" ? 0 : undefined,
+      ...options,
+    }).format(value);
+  };
+}
+
 export const useTranslations = () => {
-  return useI18n<[typeof enLocale]>();
+  const locale = computed(() => "en");
+  const defaultLocale = "en";
+
+  return {
+    locale,
+    defaultLocale,
+    t: (key: string) => key,
+    n: createFormatter("decimal"),
+    d: (value: Date | string | number, options?: Intl.DateTimeFormatOptions) =>
+      new Intl.DateTimeFormat("en", options).format(new Date(value)),
+    currency: createFormatter("currency"),
+    percent: createFormatter("percent"),
+  };
 };

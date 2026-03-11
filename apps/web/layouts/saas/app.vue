@@ -1,40 +1,20 @@
 <script setup lang="ts">
-  const { user, reloadUser } = useUser();
+await callOnce(() => useAuth().fetchUser());
 
-  await reloadUser();
+const route = useRoute();
+const auth = useAuth();
 
-  const localePath = useLocalePath();
-  const currentTeamId = useCurrentTeamIdCookie();
-
-  if (!user.value) {
-    await navigateTo(localePath("/auth/login"));
-    throw new Error("User not found");
-  }
-
-  if (!user.value.onboardingComplete) {
-    await navigateTo(localePath("/onboarding"));
-    throw new Error("Onboarding not complete");
-  }
-
-  const teamMemberships = user.value.teamMemberships ?? [];
-  const currentTeamMembership =
-    teamMemberships.find(
-      (membership) => membership.team.id === currentTeamId.value,
-    ) ?? teamMemberships[0];
-
-  if (!currentTeamMembership) {
-    await navigateTo(localePath("/"));
-  }
-
-  currentTeamId.value = currentTeamMembership.team.id;
+if (!auth.user.value) {
+  await navigateTo("/auth/tourist/login", {
+    replace: true,
+    query: { redirect: route.fullPath },
+  });
+}
 </script>
 
 <template>
-  <SaasNavBar />
-
-  <main class="min-h-[calc(100vh-12rem)]">
+  <main class="min-h-screen bg-background pt-24">
+    <MarketingNavBar />
     <slot />
   </main>
-
-  <SaasFooter />
 </template>

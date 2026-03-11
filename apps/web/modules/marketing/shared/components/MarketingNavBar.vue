@@ -8,13 +8,13 @@
     ? ref(0)
     : useWindowScroll().y;
 
-  const { user } = useAuth();
+  const { user, guideProfile } = useAuth();
 
   const isTop = computed(() => verticalScrollPosition.value < 10);
 
   const dashboardLink = computed(() => {
     if (!user.value) return "/auth/tourist/login";
-    return user.value.user_type === "guide"
+    return guideProfile.value
       ? "/guides/dashboard"
       : "/app/dashboard";
   });
@@ -42,15 +42,16 @@
       ];
     }
     
-    if (user.value.user_type === 'guide') {
+    if (guideProfile.value) {
       return [
         { label: "dashboard", to: "/guides/dashboard" },
-        { label: "my tours", to: "/guides/tours" },
+        { label: "create tour", to: "/guides/tours/create" },
       ];
     }
     
     return [
        { label: "browse tours", to: "/tours" },
+       { label: "my bookings", to: "/app/dashboard" },
     ];
   });
 </script>

@@ -41,9 +41,6 @@ export default defineNuxtConfig({
 
   imports: {
     dirs: [
-      "modules/saas/auth/composables/**",
-      "modules/saas/dashboard/composables/**",
-      "modules/saas/shared/**",
       "modules/shared/composables/**",
       "modules/shared/utils/**",
       "modules/ui/lib/**",
@@ -61,12 +58,6 @@ export default defineNuxtConfig({
     { path: "@/modules/marketing/changelog/components", pathPrefix: false },
     { path: "@/modules/marketing/content/components", pathPrefix: false },
     { path: "@/modules/marketing/pricing/components", pathPrefix: false },
-    { path: "@/modules/saas/admin/components", pathPrefix: false },
-    { path: "@/modules/saas/auth/components", pathPrefix: false },
-    { path: "@/modules/saas/dashboard/components", pathPrefix: false },
-    { path: "@/modules/saas/onboarding/components", pathPrefix: false },
-    { path: "@/modules/saas/settings/components", pathPrefix: false },
-    { path: "@/modules/saas/shared/components", pathPrefix: false },
   ],
 
   app: {
@@ -120,10 +111,6 @@ export default defineNuxtConfig({
         },
       ],
     },
-  },
-
-  build: {
-    transpile: ["trpc-nuxt"],
   },
 
   vite: {

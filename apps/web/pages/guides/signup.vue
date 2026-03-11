@@ -15,6 +15,7 @@ definePageMeta({ layout: "saas-auth" });
 useSeoMeta({ title: "become a guide" });
 
 const { signup } = useAuth();
+const route = useRoute();
 
 const formSchema = toTypedSchema(
   z.object({
@@ -41,6 +42,7 @@ const onSubmit = handleSubmit(async (values) => {
       password: values.password,
       name: values.name,
       userType: "guide",
+      redirectTo: typeof route.query.redirect === "string" ? route.query.redirect : "/guides/onboarding",
     });
     toast({
       title: "account created!",
@@ -92,7 +94,7 @@ const perks = [
       </Card>
     </div>
 
-    <SocialLoginButtons redirect-to="/guides/onboarding" />
+    <SocialLoginButtons redirect-to="/guides/onboarding" user-type="guide" />
 
     <div class="relative">
       <Separator />
