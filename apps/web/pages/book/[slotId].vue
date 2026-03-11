@@ -20,7 +20,6 @@ useSeoMeta({ title: "book your tour" });
 const route = useRoute();
 const supabase = useSupabase();
 const { user } = useAuth();
-const bookingManageToken = useBookingManageToken();
 
 const loading = ref(true);
 const slotDetails = ref<Record<string, any> | null>(null);
@@ -131,8 +130,14 @@ throw error;
       throw new Error("booking response was incomplete");
     }
 
+    await $fetch(`/api/bookings/${booking.booking_id}/session`, {
+      method: "POST",
+      body: {
+        token: booking.manage_token,
+      },
+    });
+
     toast({ title: "booking confirmed!", variant: "success" });
-    bookingManageToken.write(booking.booking_id, booking.manage_token);
     await navigateTo(`/book/confirmation/${booking.booking_id}`);
   } catch (error: any) {
     setFieldError("guest_name", error.message || "booking failed");
