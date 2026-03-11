@@ -1,4 +1,4 @@
--- helper to generate secure edit tokens for bookings
+-- helper retained for backwards compatibility with earlier migrations
 create or replace function generate_edit_token()
 returns text
 language plpgsql

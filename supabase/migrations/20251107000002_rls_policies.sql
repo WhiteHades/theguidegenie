@@ -131,7 +131,7 @@ on bookings for select
 to authenticated
 using (user_id = auth.uid());
 
--- tokenless guests: client filters by edit_token in query
+-- old guest access was token-based on edit_token and is superseded by server-side rpc flows
 create policy "anyone can read bookings"
 on bookings for select
 to anon, authenticated
