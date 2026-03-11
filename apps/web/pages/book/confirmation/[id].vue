@@ -23,7 +23,7 @@ const bookingId = computed(() => {
   const value = route.params.id;
   return Array.isArray(value) ? value[0] : value;
 });
-const manageLink = ref<string | null>(null);
+const hasManageSession = ref(false);
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString("en-US", {
@@ -41,10 +41,10 @@ function formatTime(dateString: string) {
   });
 }
 
-const hasPrivateLink = computed(() => !!manageLink.value);
+const hasPrivateLink = computed(() => hasManageSession.value);
 
 const maskedManageLink = computed(() => {
-  if (!booking.value || !manageLink.value) {
+  if (!booking.value || !hasManageSession.value) {
     return "";
   }
 
@@ -60,14 +60,14 @@ async function fetchBooking() {
   }
 
   try {
-    const result = await $fetch<{ booking: Record<string, any> | null; manageLink: string | null }>(`/api/bookings/${bookingId.value}`);
+    const result = await $fetch<{ booking: Record<string, any> | null; hasManageSession: boolean }>(`/api/bookings/${bookingId.value}`);
     booking.value = result.booking;
-    manageLink.value = result.manageLink;
+    hasManageSession.value = result.hasManageSession;
     validToken.value = !!result.booking;
   } catch (error) {
     console.error("error fetching booking", error);
     booking.value = null;
-    manageLink.value = null;
+    hasManageSession.value = false;
     validToken.value = false;
   } finally {
     loading.value = false;
@@ -75,13 +75,14 @@ async function fetchBooking() {
 }
 
 async function copyLink() {
-  if (!manageLink.value) {
+  if (!hasManageSession.value) {
     toast({ title: "private link unavailable", variant: "error" });
     return;
   }
 
   try {
-    await navigator.clipboard.writeText(manageLink.value);
+    const { manageLink } = await $fetch<{ manageLink: string }>(`/api/bookings/${bookingId.value}/share`);
+    await navigator.clipboard.writeText(manageLink);
     toast({ title: "link copied", variant: "success" });
   } catch {
     toast({ title: "failed to copy link", variant: "error" });
